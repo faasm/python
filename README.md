@@ -1,8 +1,9 @@
 # Faasm CPython build
 
-The CPython build uses a [fork](https://github.com/Shillaker/cpython) of the 
-main [CPython repo](https://github.com/python/cpython). The changes in the fork
-live on the [`faasm` branch](https://github.com/Shillaker/cpython/tree/faasm).
+The CPython build uses the following forks:
+
+- [CPython](https://github.com/Shillaker/cpython/tree/faasm)
+- [Numpy](https://github.com/Shillaker/numpy/tree/faasm)
 
 To avoid having to dynamically link C-extensions from Python modules, we build 
 CPython and all requires modules as a single static WebAssembly library.
@@ -12,7 +13,7 @@ Some notes on building CPython statically can be found
 adopts some of the changes made in 
 [pyodide](https://github.com/iodide-project/pyodide).
 
-## Build Python
+## Building CPython on the build machine
 
 To cross-compile CPython and any C-extensions, you need to have the _exact_ 
 same version of Python installed on your build machine. To do this, run:
@@ -27,7 +28,7 @@ This will install Python at `/usr/local/faasm/python3.8`.
 When cross-compiling we _have_ to use this Python when running commands and
 scripts on the build machine (not any other Python that might be installed).
 
-## Building CPython
+## Building CPython to WebAssembly
 
 You can build CPython by running:
 
@@ -59,11 +60,13 @@ inv crossenv
 You can then activate with:
 
 ```
-. ./cross_venv/bin/activate
+source crossenv.sh
 ```
 
 And build modules with normal `pip`:
 
 ```
-pip install numpy
+cd third-party/numpy
+pip install .
 ```
+

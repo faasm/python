@@ -132,12 +132,10 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
         _run_cmd("make", make_cmd)
         _run_cmd("libpython", ["make", LIBPYTHON_NAME])
 
-    # Set up includes and modules
+    # Run specific install tasks (see cpython/Makefile)
     _run_cmd("inclinstall", ["make", "inclinstall"])
     _run_cmd("libinstall", ["make", "libinstall"])
-
-    # Run the full install
-    _run_cmd("install", ["make", "install"])
+    _run_cmd("bininstall", ["make", "bininstall"])
 
     # Copy library file into place
     copyfile(
@@ -171,12 +169,15 @@ def runtime(ctx):
 
 
 @task
-def crossenv(ctx, force=False):
+def crossenv(ctx, clean=False):
     """
     Sets up the cross-compile environment
     """
 
-    if exists(CROSSENV_DIR) and not force:
+    if exists(CROSSENV_DIR) and clean:
+        rmtree(CROSSENV_DIR)
+
+    if exists(CROSSENV_DIR):
         print("Crossenv already set up, skipping install")
     else:
         # Install crossenv in our build python

@@ -2,3 +2,6 @@
 	path = third-party/cpython
     url = https://github.com/Shillaker/cpython
     branch = faasm
+[submodule "third-party/numpy"]
+	path = third-party/numpy
+	url = https://github.com/Shillaker/numpy
