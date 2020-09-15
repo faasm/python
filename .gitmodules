@@ -1,0 +1,4 @@
+[submodule "third-party/cpython"]
+	path = third-party/cpython
+    url = https://github.com/Shillaker/cpython
+    branch = faasm
