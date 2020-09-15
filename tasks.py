@@ -104,7 +104,7 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
 
     ldflags = [
         WASM_LDFLAGS,
-        "-static",
+        "-Xlinker --no-entry",
     ]
     ldflags = " ".join(ldflags)
 
@@ -133,8 +133,7 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
         _run_cmd("libpython", ["make", LIBPYTHON_NAME])
 
     # Run specific install tasks (see cpython/Makefile)
-    _run_cmd("inclinstall", ["make", "inclinstall"])
-    _run_cmd("libinstall", ["make", "libinstall"])
+    _run_cmd("commoninstall", ["make", "commoninstall"])
     _run_cmd("bininstall", ["make", "bininstall"])
 
     # Copy library file into place
