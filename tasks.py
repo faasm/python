@@ -104,7 +104,6 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
 
     ldflags = [
         WASM_LDFLAGS,
-        "-Xlinker --no-entry",
     ]
     ldflags = " ".join(ldflags)
 
@@ -124,9 +123,12 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
         _run_cmd("modify", ["cat", "pyconfig-extra.h", ">>", "pyconfig.h"])
 
         cpus = int(cpu_count()) - 1
+
+        # Note, the CPython static linking guide says to pass -static to 
+        # LDFLAGS here, but wasm-ld doesn't recognise this flag
         make_cmd = [
             "make -j {}".format(cpus),
-            'LDFLAGS="-static"',
+            'LDFLAGS=" "',
             'LINKFORSHARED=" "',
         ]
         _run_cmd("make", make_cmd)
