@@ -1,12 +1,11 @@
 import os
 from copy import copy
 from multiprocessing import cpu_count
-from os.path import join, exists
+from os.path import join, exists, dirname, realpath
 from subprocess import run
 from os import makedirs
 from shutil import copyfile, copytree, rmtree
 
-from faasmcli.util.compile import wasm_cmake, wasm_copy_upload
 from faasmcli.util.files import clean_dir
 from faasmcli.util.toolchain import (
     BASE_CONFIG_CMD,
@@ -14,34 +13,38 @@ from faasmcli.util.toolchain import (
     WASM_CFLAGS,
     WASM_HOST,
     WASM_LDFLAGS,
+    WASM_SYSROOT,
 )
-from faasmcli.util.env import (
-    FAASM_RUNTIME_ROOT
-        )
+from faasmcli.util.env import FAASM_RUNTIME_ROOT
 
 from invoke import task
 
-from tasks.util.env import (
-    EXPERIMENTS_FUNC_BUILD_DIR,
-    EXPERIMENTS_FUNC_DIR,
-    EXPERIMENTS_THIRD_PARTY,
-)
+THIS_DIR = dirname(realpath(__file__))
 
 # The python library name might have a letter at the end of it,
 # e.g. for a debug build it'll be libpython3.8d.a and with
 # pymalloc it'll be libpython3.8m.a
 LIBPYTHON_NAME = "libpython3.8.a"
 
-CPYTHON_DIR = join(EXPERIMENTS_THIRD_PARTY, "cpython")
-LOCAL_PYTHON_BIN = "/usr/local/faasm/python3.8/bin"
-WORK_DIR = join(CPYTHON_DIR)
+# We need to have a version of Python installed on the host with _exactly_
+# the same version as the one we're building
+BUILD_PYTHON_BIN = "/usr/local/faasm/python3.8/bin"
+BUILD_PYTHON_EXE = join(BUILD_PYTHON_BIN, "python3.8")
+BUILD_PYTHON_PIP = join(BUILD_PYTHON_BIN, "pip3.8")
+
+CROSSENV_DIR = join(THIS_DIR, "cross_venv")
+
+CPYTHON_SRC = join(THIS_DIR, "third-party", "cpython")
+WORK_DIR = join(CPYTHON_SRC)
 BUILD_DIR = join(WORK_DIR, "build", "wasm")
+
 INSTALL_DIR = join(WORK_DIR, "install", "wasm")
+WASM_PYTHON = join(INSTALL_DIR, "bin", "python3.8")
 
 # Environment variables
 ENV_VARS = copy(os.environ)
 PATH_ENV_VAR = ENV_VARS.get("PATH", "")
-PATH_ENV_VAR = "{}:{}".format(LOCAL_PYTHON_BIN, PATH_ENV_VAR)
+PATH_ENV_VAR = "{}:{}".format(BUILD_PYTHON_BIN, PATH_ENV_VAR)
 ENV_VARS.update(
     {
         "PATH": PATH_ENV_VAR,
@@ -66,7 +69,11 @@ def _run_cmd(label, cmd_array):
 
 
 @task
-def lib(ctx, clean=False, noconf=False, nobuild=False):
+def cpython(ctx, clean=False, noconf=False, nobuild=False):
+    """
+    Build CPython to WebAssembly
+    """
+
     clean_dir(BUILD_DIR, clean)
     clean_dir(INSTALL_DIR, clean)
     if clean:
@@ -125,24 +132,18 @@ def lib(ctx, clean=False, noconf=False, nobuild=False):
         _run_cmd("make", make_cmd)
         _run_cmd("libpython", ["make", LIBPYTHON_NAME])
 
+    # Set up includes and modules
     _run_cmd("inclinstall", ["make", "inclinstall"])
     _run_cmd("libinstall", ["make", "libinstall"])
 
+    # Run the full install
+    _run_cmd("install", ["make", "install"])
+
     # Copy library file into place
     copyfile(
-            join(WORK_DIR, LIBPYTHON_NAME),
-            join(INSTALL_DIR, "lib", LIBPYTHON_NAME)
-            )
-
-
-@task
-def func(ctx, clean=False):
-    wasm_cmake(
-        EXPERIMENTS_FUNC_DIR, EXPERIMENTS_FUNC_BUILD_DIR, "mini", clean=clean
+        join(WORK_DIR, LIBPYTHON_NAME),
+        join(INSTALL_DIR, "lib", LIBPYTHON_NAME),
     )
-
-    wasm_file = join(EXPERIMENTS_FUNC_BUILD_DIR, "cpy", "mini.wasm")
-    wasm_copy_upload("cpy", "mini", wasm_file)
 
 
 @task
@@ -167,4 +168,44 @@ def runtime(ctx):
 
     copytree(include_src_dir, include_dest_dir)
     copytree(lib_src_dir, lib_dest_dir)
+
+
+@task
+def crossenv(ctx, force=False):
+    """
+    Sets up the cross-compile environment
+    """
+
+    if exists(CROSSENV_DIR) and not force:
+        print("Crossenv already set up, skipping install")
+    else:
+        # Install crossenv in our build python
+        run(
+            "{} install crossenv".format(BUILD_PYTHON_PIP),
+            shell=True,
+            check=True,
+            cwd=THIS_DIR,
+            env=ENV_VARS,
+        )
+
+        # See the crossenv commandline args:
+        # https://github.com/benfogle/crossenv/blob/master/crossenv/__init__.py
+        crossenv_setup = [
+            BUILD_PYTHON_EXE,
+            "-m crossenv",
+            WASM_PYTHON,
+            "cross_venv",
+            "--sysroot={}".format(WASM_SYSROOT),
+        ]
+        
+        crossenv_cmd = " ".join(crossenv_setup)
+        print(crossenv_cmd)
+
+        run(
+            crossenv_cmd,
+            shell=True,
+            check=True,
+            cwd=THIS_DIR,
+            env=ENV_VARS,
+        )
 

@@ -12,24 +12,27 @@ Some notes on building CPython statically can be found
 adopts some of the changes made in 
 [pyodide](https://github.com/iodide-project/pyodide).
 
-## Host Python
+## Build Python
 
-To cross-compile Python and its associated modules, you need to have the 
-_exact_ same version of Python installed on your host. To do this, run:
+To cross-compile CPython and any C-extensions, you need to have the _exact_ 
+same version of Python installed on your build machine. To do this, run:
 
 ```
 cd ansible
 ansible-playbook python3_8.yml
 ```
 
-This will install Python on your host at `/usr/local/faasm/python3.8`.
+This will install Python at `/usr/local/faasm/python3.8`.
+
+When cross-compiling we _have_ to use this Python when running commands and
+scripts on the build machine (not any other Python that might be installed).
 
 ## Building CPython
 
 You can build CPython by running:
 
 ```
-inv cpython.lib
+inv cpython
 ```
 
 The result is installed at `third-party/cpython/install/wasm`.
@@ -38,7 +41,7 @@ CPython needs to access certain files at runtime. These can be put in place with
 the following:
 
 ```
-inv cpython.runtime
+inv runtime
 ```
 
 ## Cross-compiling modules
@@ -47,3 +50,20 @@ Setuptools and distutils both interrogate the Python system environment during
 the build process. This makes it quite difficult to cross-compile libraries, so
 we use [crossenv](https://github.com/benfogle/crossenv).
 
+To set up crossenv for the first time:
+
+```
+inv crossenv
+```
+
+You can then activate with:
+
+```
+. ./cross_venv/bin/activate
+```
+
+And build modules with normal `pip`:
+
+```
+pip install numpy
+```
