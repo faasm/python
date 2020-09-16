@@ -67,7 +67,7 @@ source crossenv.sh
 
 ### Building modules
 
-With crossenv we can build modules with normal `pip`:
+With the crossenv activated, we can build modules with normal `pip`:
 
 ```
 cd third-party/numpy
