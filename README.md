@@ -51,6 +51,8 @@ Setuptools and distutils both interrogate the Python system environment during
 the build process. This makes it quite difficult to cross-compile libraries, so
 we use [crossenv](https://github.com/benfogle/crossenv).
 
+### Crossenv set-up
+
 To set up crossenv for the first time:
 
 ```
@@ -63,10 +65,24 @@ You can then activate with:
 source crossenv.sh
 ```
 
-And build modules with normal `pip`:
+### Building modules
+
+With crossenv we can build modules with normal `pip`:
 
 ```
 cd third-party/numpy
 pip install .
 ```
+
+### Crossenv environment issues
+
+Note that crossenv should pick up _most_ of the required cross-compilation
+environment from the CPython build artifacts. The bits that it doesn't pick up
+will be set in `crossenv.sh`, so check _both_ when debugging issues.
+
+The config seen by crossenv will be echoed in 
+`cross_venv/lib/_sysconfigdata_wasi_.py`. 
+
+Because crossenv picks up its info from the CPython build, any changes, to the 
+cross-compile environment must be replicated in the CPython build.
 

@@ -1,4 +1,5 @@
 import os
+
 from copy import copy
 from multiprocessing import cpu_count
 from os.path import join, exists, dirname, realpath
@@ -115,6 +116,7 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
             'LDFLAGS="{}"'.format(ldflags),
             'EXT_SUFFIX=.a',
             'LDSHARED="{} --no-entry"'.format(WASM_LD),
+            'LDCXXSHARED="{} --no-entry"'.format(WASM_LD),
         ]
     )
 
