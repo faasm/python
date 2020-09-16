@@ -74,6 +74,12 @@ cd third-party/numpy
 pip install .
 ```
 
+To get the pip logs add the `--log` argument.
+
+```
+pip install . --log /tmp/pip.log
+```
+
 ### Crossenv environment issues
 
 Note that crossenv should pick up _most_ of the required cross-compilation
