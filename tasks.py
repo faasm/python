@@ -10,6 +10,7 @@ from faasmcli.util.files import clean_dir
 from faasmcli.util.toolchain import (
     BASE_CONFIG_CMD,
     WASM_BUILD,
+    WASM_LD,
     WASM_CFLAGS,
     WASM_HOST,
     WASM_LDFLAGS,
@@ -112,6 +113,8 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
             'CFLAGS="{}"'.format(cflags),
             'CPPFLAGS="{}"'.format(cflags),
             'LDFLAGS="{}"'.format(ldflags),
+            'EXT_SUFFIX=.a',
+            'LDSHARED="{} --no-entry"'.format(WASM_LD),
         ]
     )
 
