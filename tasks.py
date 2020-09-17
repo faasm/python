@@ -11,11 +11,11 @@ from faasmcli.util.files import clean_dir
 from faasmcli.util.toolchain import (
     BASE_CONFIG_CMD,
     WASM_BUILD,
-    WASM_LD,
+    WASM_LDSHARED,
     WASM_CFLAGS,
     WASM_HOST,
-    WASM_LDFLAGS,
     WASM_SYSROOT,
+    WASM_LIB_INSTALL,
 )
 from faasmcli.util.env import FAASM_RUNTIME_ROOT
 
@@ -104,19 +104,18 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
     ]
     cflags = " ".join(cflags)
 
-    ldflags = [
-        WASM_LDFLAGS,
-    ]
-    ldflags = " ".join(ldflags)
+    # Empty LDFLAGS 
+    ldflags = " "
 
     configure_cmd.extend(
         [
             'CFLAGS="{}"'.format(cflags),
             'CPPFLAGS="{}"'.format(cflags),
             'LDFLAGS="{}"'.format(ldflags),
-            'EXT_SUFFIX=.a',
-            'LDSHARED="{} --no-entry"'.format(WASM_LD),
-            'LDCXXSHARED="{} --no-entry"'.format(WASM_LD),
+            'EXT_SUFFIX=.so',
+            'SHLIB_SUFFIX=.so',
+            'LDSHARED="{} -L {}"'.format(WASM_LDSHARED, WASM_LIB_INSTALL),
+            'LDCXXSHARED="{} -L {}"'.format(WASM_LDSHARED, WASM_LIB_INSTALL),
         ]
     )
 

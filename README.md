@@ -62,7 +62,7 @@ inv crossenv
 You can then activate with:
 
 ```
-source crossenv.sh
+. cross_venv/bin/activate
 ```
 
 ### Building modules
