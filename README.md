@@ -1,22 +1,19 @@
 # Faasm CPython build
 
-The CPython build uses the following forks:
+The CPython build uses a fork of 
+[CPython](https://github.com/Shillaker/cpython/tree/faasm) along with other
+Python module forks in the `third-party` directory.
 
-- [CPython](https://github.com/Shillaker/cpython/tree/faasm)
-- [Numpy](https://github.com/Shillaker/numpy/tree/faasm)
-
-To avoid having to dynamically link C-extensions from Python modules, we build 
-CPython and all requires modules as a single static WebAssembly library.
-
-Some notes on building CPython statically can be found
+CPython is built statically, some notes on this process can be found 
 [here](https://wiki.python.org/moin/BuildStatically). The Faasm CPython build 
-adopts some of the changes made in 
-[pyodide](https://github.com/iodide-project/pyodide).
+is inspired by [pyodide](https://github.com/iodide-project/pyodide).
 
-## Building CPython on the build machine
+## Set-up
+
+### CPython on the build machine
 
 To cross-compile CPython and any C-extensions, you need to have the _exact_ 
-same version of Python installed on your build machine. To do this, run:
+same version of Python installed on your _build_ machine. To do this, run:
 
 ```
 cd ansible
@@ -28,7 +25,7 @@ This will install Python at `/usr/local/faasm/python3.8`.
 When cross-compiling we _have_ to use this Python when running commands and
 scripts on the build machine (not any other Python that might be installed).
 
-## Building CPython to WebAssembly
+### Building CPython to WebAssembly
 
 You can build CPython by running:
 
@@ -37,6 +34,16 @@ inv cpython
 ```
 
 The result is installed at `third-party/cpython/install/wasm`.
+
+We provide a [Setup.local](third-party/cpython/Modules/Setup.local) file, which
+specifies which standard CPython modules will be built statically. Many of the
+non-essential standard libraries will error as part of their build, which is ok
+provided we don't need them.
+
+At the end of the CPython build, it will print out a list of which modules have 
+been successfully built and which have failed.
+
+### Runtime files
 
 CPython needs to access certain files at runtime. These can be put in place with
 the following:

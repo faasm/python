@@ -10,6 +10,11 @@ from shutil import copyfile, copytree, rmtree
 from faasmcli.util.files import clean_dir
 from faasmcli.util.toolchain import (
     BASE_CONFIG_CMD,
+    WASM_CC,
+    WASM_CPP,
+    WASM_AR,
+    WASM_CXX,
+    WASM_RANLIB,
     WASM_BUILD,
     WASM_LDSHARED,
     WASM_CFLAGS,
@@ -88,7 +93,15 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
         "./configure",
     ]
 
-    configure_cmd.extend(BASE_CONFIG_CMD)
+    configure_cmd.extend([
+        "CC={}".format(WASM_CC),
+        "CXX={}".format(WASM_CXX),
+        "CPP={}".format(WASM_CPP),
+        "AR={}".format(WASM_AR),
+        "RANLIB={}".format(WASM_RANLIB),
+        "LD={}".format(WASM_CC),
+    ])
+
     configure_cmd.extend(
         [
             "--disable-ipv6",
@@ -104,8 +117,23 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
     ]
     cflags = " ".join(cflags)
 
-    # Empty LDFLAGS 
-    ldflags = " "
+    ldflags = [
+            "-static",
+#            "-Xlinker --export-all",
+            "-Xlinker --no-gc-sections",
+            ]
+    ldflags = " ".join(ldflags)
+
+    # Arguments to wasm-ld for building C extensions
+    # Used for both CPython builtins and other modules
+    ldshared = [
+            WASM_CC,
+            "-Xlinker --no-entry",
+#            "-Xlinker --export-all",
+            "-Xlinker --no-gc-sections",
+            "-L {}".format(WASM_LIB_INSTALL),
+            ]
+    ldshared = " ".join(ldshared)
 
     configure_cmd.extend(
         [
@@ -114,8 +142,8 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
             'LDFLAGS="{}"'.format(ldflags),
             'EXT_SUFFIX=.so',
             'SHLIB_SUFFIX=.so',
-            'LDSHARED="{} -L {}"'.format(WASM_LDSHARED, WASM_LIB_INSTALL),
-            'LDCXXSHARED="{} -L {}"'.format(WASM_LDSHARED, WASM_LIB_INSTALL),
+            'LDSHARED="{}"'.format(ldshared),
+            'LDCXXSHARED="{}"'.format(ldshared),
         ]
     )
 
@@ -132,7 +160,7 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
         # LDFLAGS here, but wasm-ld doesn't recognise this flag
         make_cmd = [
             "make -j {}".format(cpus),
-            'LDFLAGS=" "',
+            'LDFLAGS="-static"',
             'LINKFORSHARED=" "',
         ]
         _run_cmd("make", make_cmd)
