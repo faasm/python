@@ -5,18 +5,16 @@ from multiprocessing import cpu_count
 from os.path import join, exists, dirname, realpath
 from subprocess import run
 from os import makedirs
-from shutil import copyfile, copytree, rmtree
+from shutil import copytree, rmtree
 
 from faasmcli.util.files import clean_dir
 from faasmcli.util.toolchain import (
-    BASE_CONFIG_CMD,
     WASM_CC,
     WASM_CPP,
     WASM_AR,
     WASM_CXX,
     WASM_RANLIB,
     WASM_BUILD,
-    WASM_LDSHARED,
     WASM_CFLAGS,
     WASM_HOST,
     WASM_SYSROOT,
@@ -41,12 +39,14 @@ BUILD_PYTHON_PIP = join(BUILD_PYTHON_BIN, "pip3.8")
 
 CROSSENV_DIR = join(THIS_DIR, "cross_venv")
 
+# CPython src
 CPYTHON_SRC = join(THIS_DIR, "third-party", "cpython")
-WORK_DIR = join(CPYTHON_SRC)
-BUILD_DIR = join(WORK_DIR, "build", "wasm")
+CPYTHON_BUILD_DIR = join(CPYTHON_SRC, "build", "wasm")
 
-INSTALL_DIR = join(WORK_DIR, "install", "wasm")
+# CPython install
+INSTALL_DIR = join(CPYTHON_SRC, "install", "wasm")
 WASM_PYTHON = join(INSTALL_DIR, "bin", "python3.8")
+WASM_PYTHON_INCLUDES = join(INSTALL_DIR, "include")
 
 # Environment variables
 ENV_VARS = copy(os.environ)
@@ -63,16 +63,12 @@ ENV_VARS.update(
 # - Static builds: https://wiki.python.org/moin/BuildStatically
 
 
-def _run_cmd(label, cmd_array):
+def _run_cpython_cmd(label, cmd_array):
     cmd_str = " ".join(cmd_array)
     print("CPYTHON BUILD STEP: {}".format(label))
     print(cmd_str)
-    res = run(cmd_str, shell=True, cwd=WORK_DIR, env=ENV_VARS)
-
-    if res.returncode != 0:
-        raise RuntimeError(
-            "CPython {} failed ({})".format(label, res.returncode)
-        )
+    
+    run(cmd_str, shell=True, check=True, cwd=CPYTHON_SRC, env=ENV_VARS)
 
 
 @task
@@ -80,17 +76,16 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
     """
     Build CPython to WebAssembly
     """
-
-    clean_dir(BUILD_DIR, clean)
     clean_dir(INSTALL_DIR, clean)
     if clean:
-        _run_cmd("clean", ["make", "clean"])
+        _run_cpython_cmd("clean", ["make", "clean"])
 
     # These flags are relevant for building static extensions and CPython 
     # itself
     cflags = [
         WASM_CFLAGS,
-        "-fPIC",
+        "-I {}".format(WASM_PYTHON_INCLUDES),
+        "-I {}/python3.8".format(WASM_PYTHON_INCLUDES),
     ]
 
     ldflags = [            
@@ -104,6 +99,8 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
     # relevant in the module builds.
     cc_shared = [
         WASM_CC,
+        "-I {}".format(WASM_PYTHON_INCLUDES),
+        "-I {}/python3.8".format(WASM_PYTHON_INCLUDES),
         "-nostdlib", "-nostdlib++", 
         "-fPIC",
         "--target=wasm32-unknown-emscripten",
@@ -111,7 +108,6 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
 
     ldshared = [
         WASM_CC,
-        "-fPIC",
         "-nostdlib", "-nostdlib++",
         "-Xlinker --no-entry",
         "-Xlinker --shared",
@@ -144,11 +140,11 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
     ]
 
     if not noconf:
-        _run_cmd("configure", configure_cmd)
+        _run_cpython_cmd("configure", configure_cmd)
 
     if not nobuild:
         # Copy in extra undefs
-        _run_cmd("modify", ["cat", "pyconfig-extra.h", ">>", "pyconfig.h"])
+        _run_cpython_cmd("modify", ["cat", "pyconfig-extra.h", ">>", "pyconfig.h"])
 
         cpus = int(cpu_count()) - 1
 
@@ -156,21 +152,13 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
         # LDFLAGS here, but wasm-ld doesn't recognise this flag
         make_cmd = [
             "make -j {}".format(cpus),
-            'LDFLAGS="-static"',
-            'LINKFORSHARED=" "',
         ]
-        _run_cmd("make", make_cmd)
-        _run_cmd("libpython", ["make", LIBPYTHON_NAME])
+        _run_cpython_cmd("make", make_cmd)
+        _run_cpython_cmd("libpython", ["make", LIBPYTHON_NAME])
 
     # Run specific install tasks (see cpython/Makefile)
-    _run_cmd("commoninstall", ["make", "commoninstall"])
-    _run_cmd("bininstall", ["make", "bininstall"])
-
-    # Copy library file into place
-    copyfile(
-        join(WORK_DIR, LIBPYTHON_NAME),
-        join(INSTALL_DIR, "lib", LIBPYTHON_NAME),
-    )
+    _run_cpython_cmd("commoninstall", ["make", "commoninstall"])
+    _run_cpython_cmd("bininstall", ["make", "bininstall"])
 
 
 @task
@@ -225,6 +213,7 @@ def crossenv(ctx, clean=False):
             "-m crossenv",
             WASM_PYTHON,
             "cross_venv",
+            "-vvv", 
             "--sysroot={}".format(WASM_SYSROOT),
         ]
         
