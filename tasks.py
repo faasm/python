@@ -7,7 +7,6 @@ from subprocess import run
 from os import makedirs
 from shutil import copytree, rmtree
 
-from faasmcli.util.files import clean_dir
 from faasmcli.util.toolchain import (
     WASM_CC,
     WASM_CPP,
@@ -24,7 +23,7 @@ from faasmcli.util.env import FAASM_RUNTIME_ROOT
 
 from invoke import task
 
-THIS_DIR = dirname(realpath(__file__))
+PROJ_ROOT = dirname(realpath(__file__))
 
 # The python library name might have a letter at the end of it,
 # e.g. for a debug build it'll be libpython3.8d.a and with
@@ -37,16 +36,15 @@ BUILD_PYTHON_BIN = "/usr/local/faasm/python3.8/bin"
 BUILD_PYTHON_EXE = join(BUILD_PYTHON_BIN, "python3.8")
 BUILD_PYTHON_PIP = join(BUILD_PYTHON_BIN, "pip3.8")
 
-CROSSENV_DIR = join(THIS_DIR, "cross_venv")
+CROSSENV_DIR = join(PROJ_ROOT, "cross_venv")
 
 # CPython src
-CPYTHON_SRC = join(THIS_DIR, "third-party", "cpython")
+CPYTHON_SRC = join(PROJ_ROOT, "third-party", "cpython")
 CPYTHON_BUILD_DIR = join(CPYTHON_SRC, "build", "wasm")
 
 # CPython install
-INSTALL_DIR = join(CPYTHON_SRC, "install", "wasm")
-WASM_PYTHON = join(INSTALL_DIR, "bin", "python3.8")
-WASM_PYTHON_INCLUDES = join(INSTALL_DIR, "include")
+WASM_PYTHON = join(WASM_SYSROOT, "bin", "python3.8")
+WASM_PYTHON_INCLUDES = join(WASM_SYSROOT, "include")
 
 # Environment variables
 ENV_VARS = copy(os.environ)
@@ -76,16 +74,13 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
     """
     Build CPython to WebAssembly
     """
-    clean_dir(INSTALL_DIR, clean)
-    if clean:
+    if exists(join(CPYTHON_SRC, "Makefile")) and clean:
         _run_cpython_cmd("clean", ["make", "clean"])
 
     # These flags are relevant for building static extensions and CPython 
     # itself
     cflags = [
         WASM_CFLAGS,
-        "-I {}".format(WASM_PYTHON_INCLUDES),
-        "-I {}/python3.8".format(WASM_PYTHON_INCLUDES),
     ]
 
     ldflags = [            
@@ -99,8 +94,6 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
     # relevant in the module builds.
     cc_shared = [
         WASM_CC,
-        "-I {}".format(WASM_PYTHON_INCLUDES),
-        "-I {}/python3.8".format(WASM_PYTHON_INCLUDES),
         "-nostdlib", "-nostdlib++", 
         "-fPIC",
         "--target=wasm32-unknown-emscripten",
@@ -202,7 +195,7 @@ def crossenv(ctx, clean=False):
             "{} install crossenv".format(BUILD_PYTHON_PIP),
             shell=True,
             check=True,
-            cwd=THIS_DIR,
+            cwd=PROJ_ROOT,
             env=ENV_VARS,
         )
 
@@ -224,7 +217,7 @@ def crossenv(ctx, clean=False):
             crossenv_cmd,
             shell=True,
             check=True,
-            cwd=THIS_DIR,
+            cwd=PROJ_ROOT,
             env=ENV_VARS,
         )
 
