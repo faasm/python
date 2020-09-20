@@ -1,31 +1,36 @@
 #!/bin/bash
 
+set -e
+
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # NOTE - all the commands must use the specially-installed python 
 # on the build machine.
 
 BUILD_PYTHON_BIN=/usr/local/faasm/python3.8/bin
-BUILD_PYTHON=${PYTHON_BIN}/python3.8
-BUILD_PIP=${PYTHON_BIN}/pip3.8
+BUILD_PYTHON=${BUILD_PYTHON_BIN}/python3.8
+BUILD_PIP=${BUILD_PYTHON_BIN}/pip3.8
 
 WASM_SYSROOT=/usr/local/faasm/llvm-sysroot
-WASM_CPYTHON=${WASM_SYSROOT}/bin/python3.8
+WASM_CPYTHON=${THIS_DIR}/third-party/cpython/install/wasm/bin/python3.8
 
-CROSSENV_DIR=${THIS_DIR}
+CROSSENV_VENV_DIR=${THIS_DIR}/cross_venv
+CROSSENV_SRC_DIR=${THIS_DIR}/third-party/crossenv
 
-# Clean existing directory
-if [ -d "$CROSSENV_DIR" ]; then
-    rm -r ${CROSSENV_DIR}
+# Clean existing crossenv virtual environment
+if [ -d "$CROSSENV_VENV_DIR" ]; then
+    rm -r ${CROSSENV_VENV_DIR}
 fi
 
-# Install the crossenv module
-${BUILD_PIP} install crossenv
+# Install the crossenv module in dev mode
+pushd ${CROSSENV_SRC_DIR} >> /dev/null
+${BUILD_PIP} install -e .
+popd >> /dev/null
 
 # Set up crossenv
 ${BUILD_PYTHON} -m crossenv \
     ${WASM_CPYTHON} \
-    cross_venv \
+    ${CROSSENV_VENV_DIR} \
     -vvv \
-    --sysroot=${WASM_CPYTHON}
+    --sysroot=${WASM_SYSROOT}
 

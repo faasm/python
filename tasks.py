@@ -43,8 +43,9 @@ CPYTHON_SRC = join(PROJ_ROOT, "third-party", "cpython")
 CPYTHON_BUILD_DIR = join(CPYTHON_SRC, "build", "wasm")
 
 # CPython install
-WASM_PYTHON = join(WASM_SYSROOT, "bin", "python3.8")
-WASM_PYTHON_INCLUDES = join(WASM_SYSROOT, "include")
+INSTALL_DIR = join(CPYTHON_SRC, "install", "wasm")
+WASM_PYTHON = join(INSTALL_DIR, "bin", "python3.8")
+WASM_PYTHON_INCLUDES = join(INSTALL_DIR, "include")
 
 # Environment variables
 ENV_VARS = copy(os.environ)
