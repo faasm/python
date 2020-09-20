@@ -43,15 +43,6 @@ provided we don't need them.
 At the end of the CPython build, it will print out a list of which modules have 
 been successfully built and which have failed.
 
-### Runtime files
-
-CPython needs to access certain files at runtime. These can be put in place with
-the following:
-
-```
-inv runtime
-```
-
 ## Cross-compiling modules
 
 Setuptools and distutils both interrogate the Python system environment during
@@ -63,7 +54,7 @@ we use [crossenv](https://github.com/benfogle/crossenv).
 To set up crossenv for the first time:
 
 ```
-inv crossenv
+./crossenv.sh
 ```
 
 You can then activate with:
@@ -98,4 +89,13 @@ The config seen by crossenv will be echoed in
 
 Because crossenv picks up its info from the CPython build, any changes, to the 
 cross-compile environment must be replicated in the CPython build.
+
+### Runtime files
+
+CPython needs to access certain files at runtime. These can be put in place with
+the following:
+
+```
+inv runtime
+```
 
