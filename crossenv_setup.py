@@ -28,6 +28,8 @@ def main():
     # Invoke the cross-env builder
     print("Building crossenv at {}".format(CROSSENV_VENV_DIR))
     builder = CrossEnvBuilder(
+        with_cross_pip=True,
+        with_build_pip=True,
         host_python=WASM_CPYTHON,
         host_sysroot=CROSSENV_SYSROOT,
     )

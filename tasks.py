@@ -93,10 +93,17 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
     # in both the CPython and module builds. However, in the CPython build we 
     # statically link all the C-extensions we need, therefore these are only 
     # relevant in the module builds.
+    #
+    # NOTE: to generate shared wasm libraries we currently have to target
+    # Emscripten. However, the WASI headers will error because we're
+    # targeting a non-WASI platform, therefore we have to define __wasi__
+    # as well
     cc_shared = [
         WASM_CC,
+        "-D__wasi__",
         "-nostdlib", "-nostdlib++", 
         "-fPIC",
+        "-D__wasi__",
         "--target=wasm32-unknown-emscripten",
     ]
 
@@ -107,7 +114,6 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
         "-Xlinker --shared",
         "-Xlinker --export-all",
         "-Xlinker --no-gc-sections",
-        "-L {}".format(WASM_LIB_INSTALL),
     ]
 
     # Configure
@@ -177,4 +183,3 @@ def runtime(ctx):
 
     copytree(include_src_dir, include_dest_dir)
     copytree(lib_src_dir, lib_dest_dir)
-

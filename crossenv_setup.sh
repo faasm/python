@@ -10,14 +10,28 @@ BUILD_PYTHON_BIN=/usr/local/faasm/python3.8/bin
 BUILD_PYTHON=${BUILD_PYTHON_BIN}/python3.8
 BUILD_PIP=${BUILD_PYTHON_BIN}/pip3.8
 
-# Install the crossenv module in dev mode
+# Install the build machine python dependencies
 CROSSENV_SRC_DIR=${THIS_DIR}/third-party/crossenv
 echo "Installing crossenv from ${CROSSENV_SRC_DIR}"
 pushd ${CROSSENV_SRC_DIR} >> /dev/null
 ${BUILD_PIP} install -e .
+
+echo "Installing cython"
+${BUILD_PIP} install cython
 popd >> /dev/null
 
-# Run the set-up script
 pushd ${THIS_DIR} >> /dev/null
+
+# Run the set-up script
 ${BUILD_PYTHON} crossenv_setup.py
+
+# Enter the env and print details
+source cross_venv/bin/activate
+echo ""
+echo "Inside crossenv: "
+echo "pip3.8 is:    $(which pip3.8)"
+echo "python3.8 is: $(which python3.8)"
+
 popd >> /dev/null
+
+

@@ -4,7 +4,8 @@
     branch = faasm
 [submodule "third-party/numpy"]
 	path = third-party/numpy
-	url = https://github.com/Shillaker/numpy
+    url = https://github.com/Shillaker/numpy
+    branch = faasm
 [submodule "third-party/crossenv"]
 	path = third-party/crossenv
     url = https://github.com/Shillaker/crossenv

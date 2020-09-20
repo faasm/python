@@ -14,9 +14,6 @@ def main():
     print("Variables")
     pprint(sysconfig.get_config_vars())
 
-    # Distutils checks
-    print("Compiler: {}".format(distutils.ccompiler.get_default_compiler()))
-
 
 if __name__ == "__main__":
     main()

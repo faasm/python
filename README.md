@@ -87,11 +87,21 @@ cd third-party/numpy
 pip install .
 ```
 
+The library will then be installed to
+`cross_venv/cross/lib/python3.8/site-packages`.
+
 To get the pip logs add the `--log` argument.
 
 ```
 pip install . --log /tmp/pip.log
 ```
+
+### Debugging module builds
+
+You can debug module builds by running `python setup.py install` through your
+debugger.
+
+You can also set `DISTUTILS_DEBUG=1` to get distutils to print more info.
 
 ## Runtime files
 
