@@ -7,4 +7,5 @@
 	url = https://github.com/Shillaker/numpy
 [submodule "third-party/crossenv"]
 	path = third-party/crossenv
-	url = git@github.com:benfogle/crossenv.git
+    url = https://github.com/Shillaker/crossenv
+    branch = faasm

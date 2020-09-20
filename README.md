@@ -43,13 +43,11 @@ provided we don't need them.
 At the end of the CPython build, it will print out a list of which modules have 
 been successfully built and which have failed.
 
-## Cross-compiling modules
+## Cross-compilation set-up
 
 Setuptools and distutils both interrogate the Python system environment during
 the build process. This makes it quite difficult to cross-compile libraries, so
 we use [crossenv](https://github.com/benfogle/crossenv).
-
-### Crossenv set-up
 
 To set up crossenv for the first time:
 
@@ -63,9 +61,26 @@ You can then activate with:
 . cross_venv/bin/activate
 ```
 
-### Building modules
+From inside the virtual environment, you can inspect the set-up with:
 
-With the crossenv activated, we can build modules with normal `pip`:
+```
+python sanity_check.py | less
+```
+
+### Changing the crossenv environment
+
+Note that crossenv picks up the cross-compilation environment from the CPython 
+build. Therefore, to make changes:
+
+- Modify the CPython build (see `tasks.py`)
+- Rerun the CPython build (`inv cpython.py --clean`) 
+- Rebuild the crossenv (`./crossenv_setup.sh`) 
+- Enter the crossenv and inspect the environment with `sanity_check.py`
+
+## Modules
+
+With the crossenv activated, we can build modules with normal `pip`,
+e.g.
 
 ```
 cd third-party/numpy
@@ -78,19 +93,7 @@ To get the pip logs add the `--log` argument.
 pip install . --log /tmp/pip.log
 ```
 
-### Crossenv environment issues
-
-Note that crossenv should pick up _most_ of the required cross-compilation
-environment from the CPython build artifacts. The bits that it doesn't pick up
-will be set in `crossenv.sh`, so check _both_ when debugging issues.
-
-The config seen by crossenv will be echoed in 
-`cross_venv/lib/_sysconfigdata_wasi_.py`. 
-
-Because crossenv picks up its info from the CPython build, any changes, to the 
-cross-compile environment must be replicated in the CPython build.
-
-### Runtime files
+## Runtime files
 
 CPython needs to access certain files at runtime. These can be put in place with
 the following:
@@ -98,4 +101,3 @@ the following:
 ```
 inv runtime
 ```
-
