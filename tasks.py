@@ -36,7 +36,7 @@ BUILD_PYTHON_BIN = "/usr/local/faasm/python3.8/bin"
 BUILD_PYTHON_EXE = join(BUILD_PYTHON_BIN, "python3.8")
 BUILD_PYTHON_PIP = join(BUILD_PYTHON_BIN, "pip3.8")
 
-CROSSENV_DIR = join(PROJ_ROOT, "cross_venv")
+CROSSENV_WASM_DIR = join(PROJ_ROOT, "cross_venv", "cross")
 
 # CPython src
 CPYTHON_SRC = join(PROJ_ROOT, "third-party", "cpython")
@@ -57,6 +57,7 @@ ENV_VARS.update(
     }
 )
 
+
 # See the CPython docs for more info:
 # - General: https://devguide.python.org/setup/#compile-and-build
 # - Static builds: https://wiki.python.org/moin/BuildStatically
@@ -66,7 +67,7 @@ def _run_cpython_cmd(label, cmd_array):
     cmd_str = " ".join(cmd_array)
     print("CPYTHON BUILD STEP: {}".format(label))
     print(cmd_str)
-    
+
     run(cmd_str, shell=True, check=True, cwd=CPYTHON_SRC, env=ENV_VARS)
 
 
@@ -84,7 +85,7 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
         WASM_CFLAGS,
     ]
 
-    ldflags = [            
+    ldflags = [
         "-static",
         "-Xlinker --no-gc-sections",
     ]
@@ -101,7 +102,7 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
     cc_shared = [
         WASM_CC,
         "-D__wasi__",
-        "-nostdlib", "-nostdlib++", 
+        "-nostdlib", "-nostdlib++",
         "-fPIC",
         "-D__wasi__",
         "--target=wasm32-unknown-emscripten",
@@ -144,7 +145,8 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
 
     if not nobuild:
         # Copy in extra undefs
-        _run_cpython_cmd("modify", ["cat", "pyconfig-extra.h", ">>", "pyconfig.h"])
+        _run_cpython_cmd("modify",
+                         ["cat", "pyconfig-extra.h", ">>", "pyconfig.h"])
 
         cpus = int(cpu_count()) - 1
 
@@ -165,6 +167,7 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
 def runtime(ctx):
     include_root = join(FAASM_RUNTIME_ROOT, "include")
     lib_root = join(FAASM_RUNTIME_ROOT, "lib")
+
     if not exists(lib_root):
         makedirs(lib_root)
 
@@ -173,13 +176,27 @@ def runtime(ctx):
 
     include_src_dir = join(INSTALL_DIR, "include", "python3.8")
     lib_src_dir = join(INSTALL_DIR, "lib", "python3.8")
+    site_packages_src_dir = join(CROSSENV_WASM_DIR, "lib", "python3.8",
+                                 "site-packages")
 
     include_dest_dir = join(include_root, "python3.8")
     lib_dest_dir = join(lib_root, "python3.8")
+    site_packages_dest_dir = join(lib_dest_dir, "site-packages")
 
     if exists(include_dest_dir):
         rmtree(include_dest_dir)
         rmtree(lib_dest_dir)
 
+    # Copy CPython includes
     copytree(include_src_dir, include_dest_dir)
+
+    # Copy CPython libs
     copytree(lib_src_dir, lib_dest_dir)
+
+    # Copy cross-env libs
+    # NOTE: we overwrite the existing dir (it should be empty)
+    if exists(site_packages_dest_dir):
+        print("Replacing existing {} with {}".format(site_packages_dest_dir, site_packages_src_dir))
+        rmtree(site_packages_dest_dir)
+
+    copytree(site_packages_src_dir, site_packages_dest_dir)
