@@ -114,10 +114,8 @@ debugger.
 
 You can also set `DISTUTILS_DEBUG=1` to get distutils to print more info.
 
-## Runtime files
+## Running in Faasm
 
-To put Python modules into place for running in Faasm, you can run:
+See the [Faasm python
+docs](https://github.com/lsds/faasm/blob/master/docs/python.md).
 
-```
-inv runtime
-```

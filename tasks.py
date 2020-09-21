@@ -4,8 +4,6 @@ from copy import copy
 from multiprocessing import cpu_count
 from os.path import join, exists, dirname, realpath
 from subprocess import run
-from os import makedirs
-from shutil import copytree, rmtree
 
 from faasmcli.util.toolchain import (
     WASM_CC,
@@ -17,7 +15,6 @@ from faasmcli.util.toolchain import (
     WASM_CFLAGS,
     WASM_HOST,
 )
-from faasmcli.util.env import FAASM_RUNTIME_ROOT
 
 from invoke import task
 
@@ -33,8 +30,6 @@ LIBPYTHON_NAME = "libpython3.8.a"
 BUILD_PYTHON_BIN = "/usr/local/faasm/python3.8/bin"
 BUILD_PYTHON_EXE = join(BUILD_PYTHON_BIN, "python3.8")
 BUILD_PYTHON_PIP = join(BUILD_PYTHON_BIN, "pip3.8")
-
-CROSSENV_WASM_DIR = join(PROJ_ROOT, "cross_venv", "cross")
 
 # CPython src
 CPYTHON_SRC = join(PROJ_ROOT, "third-party", "cpython")
@@ -163,58 +158,3 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
     _run_cpython_cmd("commoninstall", ["make", "commoninstall"])
     _run_cpython_cmd("bininstall", ["make", "bininstall"])
 
-
-@task
-def runtime(ctx):
-    include_root = join(FAASM_RUNTIME_ROOT, "include")
-    lib_root = join(FAASM_RUNTIME_ROOT, "lib")
-
-    if not exists(lib_root):
-        print("Creating {}".format(lib_root))
-        makedirs(lib_root)
-
-    if not exists(include_root):
-        print("Creating {}".format(include_root))
-        makedirs(include_root)
-
-    include_src_dir = join(INSTALL_DIR, "include", "python3.8")
-    lib_src_dir = join(INSTALL_DIR, "lib", "python3.8")
-    site_packages_src_dir = join(
-        CROSSENV_WASM_DIR, "lib", "python3.8", "site-packages"
-    )
-
-    include_dest_dir = join(include_root, "python3.8")
-    lib_dest_dir = join(lib_root, "python3.8")
-    site_packages_dest_dir = join(lib_dest_dir, "site-packages")
-
-    # Remove dirs to be replaced by those we copy in
-    if exists(include_dest_dir):
-        print("Removing {}".format(include_dest_dir))
-        rmtree(include_dest_dir)
-
-    if exists(lib_dest_dir):
-        print("Removing {}".format(lib_dest_dir))
-        rmtree(lib_dest_dir)
-
-    # Copy CPython includes
-    print("Copying {} to {}".format(include_src_dir, include_dest_dir))
-    copytree(include_src_dir, include_dest_dir)
-
-    # Copy CPython libs
-    print("Copying {} to {}".format(lib_src_dir, lib_dest_dir))
-    copytree(lib_src_dir, lib_dest_dir)
-
-    # Copy cross-compiled modules
-    if not exists(site_packages_dest_dir):
-        makedirs(site_packages_dest_dir)
-
-    print(
-        "Copying {} to {}".format(
-            site_packages_src_dir, site_packages_dest_dir
-        )
-    )
-    run(
-        "cp -r {}/* {}/".format(site_packages_src_dir, site_packages_dest_dir),
-        shell=True,
-        check=True,
-    )
