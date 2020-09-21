@@ -16,8 +16,6 @@ from faasmcli.util.toolchain import (
     WASM_BUILD,
     WASM_CFLAGS,
     WASM_HOST,
-    WASM_SYSROOT,
-    WASM_LIB_INSTALL,
 )
 from faasmcli.util.env import FAASM_RUNTIME_ROOT
 
@@ -79,7 +77,7 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
     if exists(join(CPYTHON_SRC, "Makefile")) and clean:
         _run_cpython_cmd("clean", ["make", "clean"])
 
-    # These flags are relevant for building static extensions and CPython 
+    # These flags are relevant for building static extensions and CPython
     # itself
     cflags = [
         WASM_CFLAGS,
@@ -91,8 +89,8 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
     ]
 
     # Shared compiler and liker arguments are used to build all C-extensions
-    # in both the CPython and module builds. However, in the CPython build we 
-    # statically link all the C-extensions we need, therefore these are only 
+    # in both the CPython and module builds. However, in the CPython build we
+    # statically link all the C-extensions we need, therefore these are only
     # relevant in the module builds.
     #
     # NOTE: to generate shared wasm libraries we currently have to target
@@ -102,7 +100,8 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
     cc_shared = [
         WASM_CC,
         "-D__wasi__",
-        "-nostdlib", "-nostdlib++",
+        "-nostdlib",
+        "-nostdlib++",
         "-fPIC",
         "-D__wasi__",
         "--target=wasm32-unknown-emscripten",
@@ -110,7 +109,8 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
 
     ldshared = [
         WASM_CC,
-        "-nostdlib", "-nostdlib++",
+        "-nostdlib",
+        "-nostdlib++",
         "-Xlinker --no-entry",
         "-Xlinker --shared",
         "-Xlinker --export-all",
@@ -145,12 +145,13 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
 
     if not nobuild:
         # Copy in extra undefs
-        _run_cpython_cmd("modify",
-                         ["cat", "pyconfig-extra.h", ">>", "pyconfig.h"])
+        _run_cpython_cmd(
+            "modify", ["cat", "pyconfig-extra.h", ">>", "pyconfig.h"]
+        )
 
         cpus = int(cpu_count()) - 1
 
-        # Note, the CPython static linking guide says to pass -static to 
+        # Note, the CPython static linking guide says to pass -static to
         # LDFLAGS here, but wasm-ld doesn't recognise this flag
         make_cmd = [
             "make -j {}".format(cpus),
@@ -176,8 +177,9 @@ def runtime(ctx):
 
     include_src_dir = join(INSTALL_DIR, "include", "python3.8")
     lib_src_dir = join(INSTALL_DIR, "lib", "python3.8")
-    site_packages_src_dir = join(CROSSENV_WASM_DIR, "lib", "python3.8",
-                                 "site-packages")
+    site_packages_src_dir = join(
+        CROSSENV_WASM_DIR, "lib", "python3.8", "site-packages"
+    )
 
     include_dest_dir = join(include_root, "python3.8")
     lib_dest_dir = join(lib_root, "python3.8")
@@ -196,7 +198,11 @@ def runtime(ctx):
     # Copy cross-env libs
     # NOTE: we overwrite the existing dir (it should be empty)
     if exists(site_packages_dest_dir):
-        print("Replacing existing {} with {}".format(site_packages_dest_dir, site_packages_src_dir))
+        print(
+            "Replacing existing {} with {}".format(
+                site_packages_dest_dir, site_packages_src_dir
+            )
+        )
         rmtree(site_packages_dest_dir)
 
     copytree(site_packages_src_dir, site_packages_dest_dir)
