@@ -1,6 +1,6 @@
-import distutils.ccompiler
 import sysconfig
 from pprint import pprint
+from os import environ
 
 
 def main():
@@ -13,6 +13,10 @@ def main():
     pprint(sysconfig.get_paths())
     print("Variables")
     pprint(sysconfig.get_config_vars())
+
+    print("Environment")
+    environ_dict = {k: v for k, v in environ.items()}
+    pprint(environ_dict)
 
 
 if __name__ == "__main__":
