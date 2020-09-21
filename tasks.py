@@ -170,9 +170,11 @@ def runtime(ctx):
     lib_root = join(FAASM_RUNTIME_ROOT, "lib")
 
     if not exists(lib_root):
+        print("Creating {}".format(lib_root))
         makedirs(lib_root)
 
     if not exists(include_root):
+        print("Creating {}".format(include_root))
         makedirs(include_root)
 
     include_src_dir = join(INSTALL_DIR, "include", "python3.8")
@@ -185,24 +187,34 @@ def runtime(ctx):
     lib_dest_dir = join(lib_root, "python3.8")
     site_packages_dest_dir = join(lib_dest_dir, "site-packages")
 
+    # Remove dirs to be replaced by those we copy in
     if exists(include_dest_dir):
+        print("Removing {}".format(include_dest_dir))
         rmtree(include_dest_dir)
+
+    if exists(lib_dest_dir):
+        print("Removing {}".format(lib_dest_dir))
         rmtree(lib_dest_dir)
 
     # Copy CPython includes
+    print("Copying {} to {}".format(include_src_dir, include_dest_dir))
     copytree(include_src_dir, include_dest_dir)
 
     # Copy CPython libs
+    print("Copying {} to {}".format(lib_src_dir, lib_dest_dir))
     copytree(lib_src_dir, lib_dest_dir)
 
-    # Copy cross-env libs
-    # NOTE: we overwrite the existing dir (it should be empty)
-    if exists(site_packages_dest_dir):
-        print(
-            "Replacing existing {} with {}".format(
-                site_packages_dest_dir, site_packages_src_dir
-            )
-        )
-        rmtree(site_packages_dest_dir)
+    # Copy cross-compiled modules
+    if not exists(site_packages_dest_dir):
+        makedirs(site_packages_dest_dir)
 
-    copytree(site_packages_src_dir, site_packages_dest_dir)
+    print(
+        "Copying {} to {}".format(
+            site_packages_src_dir, site_packages_dest_dir
+        )
+    )
+    run(
+        "cp -r {}/* {}/".format(site_packages_src_dir, site_packages_dest_dir),
+        shell=True,
+        check=True,
+    )
