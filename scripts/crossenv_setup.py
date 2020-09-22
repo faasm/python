@@ -4,14 +4,12 @@ from shutil import rmtree
 
 from crossenv import CrossEnvBuilder
 
-THIS_DIR = dirname(abspath(__file__))
+PROJ_ROOT = dirname(dirname(abspath(__file__)))
 
-WASM_CPYTHON = join(THIS_DIR, "third-party", "cpython", "install", "wasm",
+WASM_CPYTHON = join(PROJ_ROOT, "third-party", "cpython", "install", "wasm",
                     "bin", "python3.8")
 
-CROSSENV_VENV_DIR = join(THIS_DIR, "cross_venv")
-
-# TODO - should this be the actual sysroot, or the Python install dir?
+CROSSENV_VENV_DIR = join(PROJ_ROOT, "cross_venv")
 CROSSENV_SYSROOT = "/usr/local/faasm/llvm-sysroot"
 
 
@@ -38,3 +36,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

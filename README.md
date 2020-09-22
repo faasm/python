@@ -65,7 +65,7 @@ we use [crossenv](https://github.com/benfogle/crossenv).
 To set up crossenv:
 
 ```
-./crossenv_setup.sh
+./scripts/crossenv_setup.sh
 ```
 
 You can then activate with:
@@ -77,7 +77,7 @@ You can then activate with:
 From inside the virtual environment, you can inspect the set-up with:
 
 ```
-python sanity_check.py | less
+python scripts/sanity_check.py | less
 ```
 
 This will display the environment used to install Python modules (including the
@@ -91,8 +91,8 @@ environment:
 
 - Modify the CPython build (see `tasks.py`)
 - Rerun the CPython build (`inv cpython --clean`) 
-- Rebuild the crossenv (`./crossenv_setup.sh`) 
-- Enter the crossenv and inspect the environment with `sanity_check.py`
+- Rebuild the crossenv (`./scripts/crossenv_setup.sh`) 
+- Enter the crossenv and inspect the environment with `scripts/sanity_check.py`
 
 ## Modules
 
@@ -101,7 +101,7 @@ With the crossenv activated, we can build modules with normal `pip`.
 To install all the modules, you can run:
 
 ```
-./install_modules.sh
+./scripts/install_modules.sh
 ```
 
 Libraries will then be installed to 
