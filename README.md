@@ -101,6 +101,7 @@ With the crossenv activated, we can build modules with normal `pip`.
 To install all the modules, you can run:
 
 ```
+# NOTE: run this from a clean terminal, _not_ through the Faasm CLI
 ./scripts/install_modules.sh
 ```
 
