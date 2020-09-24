@@ -4,8 +4,14 @@ The CPython build uses a fork of
 [CPython](https://github.com/Shillaker/cpython/tree/faasm) along with other
 Python module forks in the `third-party` directory.
 
-It uses the [Faasm toolchain](https://github.com/Shillaker/faasm-toolchain) to 
-build CPython and C-extensions to WebAssembly (for use with 
+To see the changes made to CPython, see [this
+compare](https://github.com/python/cpython/compare/v3.8.2...Shillaker:faasm).
+For numpy, see [this
+compare](https://github.com/numpy/numpy/compare/v1.19.2...Shillaker:faasm).
+
+The build uses the [Faasm
+toolchain](https://github.com/Shillaker/faasm-toolchain) to compile CPython and
+C-extensions to WebAssembly (for use with
 [Faasm](https://github.com/lsds/faasm)).
 
 CPython is built statically, some notes on this process can be found 
