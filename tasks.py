@@ -112,11 +112,15 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
         "-Xlinker --no-gc-sections",
     ]
 
+    # Link in extra printscan
+    link_libs = "-lc-printscan-long-double"
+
     # Configure
     configure_cmd = [
         "CONFIG_SITE=./config.site",
         "READELF=true",
         "./configure",
+        'LIBS="{}"'.format(link_libs),        
         "CC={}".format(WASM_CC),
         "CXX={}".format(WASM_CXX),
         "CPP={}".format(WASM_CPP),
