@@ -15,11 +15,22 @@ popd >> /dev/null
 export NPY_NUM_BUILD_JOBS=$(nproc --ignore 1)
 echo "Numpy using ${NPY_NUM_BUILD_JOBS} cores"
 pushd ${PROJ_ROOT}/third-party/numpy >> /dev/null
-pip install .
+# pip install .
 popd >> /dev/null
 
 # Pyfaasm
 pushd ${PROJ_ROOT}/third-party/pyfaasm >> /dev/null
 pip install .
 popd >> /dev/null
+
+# Other modules (can be installed unmodified)
+pip install dulwich
+pip install Genshi
+pip install pyaes
+pip install pyperf
+pip install pyperformance
+pip install six
+
+# Torch errors on a module import
+# pip install torch
 
