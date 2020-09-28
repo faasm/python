@@ -7,19 +7,19 @@ You can see a list of the installed modules in the
 [`install_modules.sh`](scripts/install_modules.sh) script.
 
 The build uses the [Faasm
-toolchain](https://github.com/Shillaker/faasm-toolchain) to cross-compile both 
+toolchain](https://github.com/faasm/faasm-toolchain) to cross-compile both 
 CPython and C-extensions to WebAssembly.
 
 ## Code changes
 
 The CPython build uses this slightly modified [fork of
-CPython](https://github.com/Shillaker/cpython/tree/faasm).
+CPython](https://github.com/faasm/cpython/tree/faasm).
 
 To see the changes made to CPython, see [this
-compare](https://github.com/python/cpython/compare/v3.8.2...Shillaker:faasm).
+compare](https://github.com/python/cpython/compare/v3.8.2...faasm:faasm).
 
 A similar (small) list of changes for numpy can be seen
-[here](https://github.com/numpy/numpy/compare/v1.19.2...Shillaker:faasm).
+[here](https://github.com/numpy/numpy/compare/v1.19.2...faasm:faasm).
 
 CPython is built statically, some notes on this process can be found 
 [here](https://wiki.python.org/moin/BuildStatically). 
