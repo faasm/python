@@ -1,15 +1,16 @@
 [submodule "third-party/cpython"]
 	path = third-party/cpython
-    url = https://github.com/Shillaker/cpython
+    url = https://github.com/faasm/cpython
     branch = faasm
 [submodule "third-party/numpy"]
 	path = third-party/numpy
-    url = https://github.com/Shillaker/numpy
+    url = https://github.com/faasm/numpy
     branch = faasm
 [submodule "third-party/crossenv"]
 	path = third-party/crossenv
-    url = https://github.com/Shillaker/crossenv
+    url = https://github.com/faasm/crossenv
     branch = faasm
 [submodule "third-party/pyfaasm"]
 	path = third-party/pyfaasm
-	url = https://github.com/Shillaker/pyfaasm.git
+    url = https://github.com/faasm/pyfaasm.git
+
