@@ -14,3 +14,6 @@
 	path = third-party/pyfaasm
     url = https://github.com/faasm/pyfaasm.git
 
+[submodule "third-party/horovod"]
+	path = third-party/horovod
+	url = https://github.com/horovod/horovod
