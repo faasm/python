@@ -3,8 +3,12 @@
 This build cross-compiles CPython and a number of Python modules to WebAssembly
 for use in [Faasm](https://github.com/lsds/faasm).
 
-You can see a list of the installed modules in the
-[`install_modules.sh`](scripts/install_modules.sh) script.
+You can try to install arbitrary packages, but the ones that definitely work 
+can be listed with:
+
+```bash
+inv libs
+```
 
 The build uses the [Faasm
 toolchain](https://github.com/faasm/faasm-toolchain) to cross-compile both 
@@ -79,7 +83,7 @@ we use [crossenv](https://github.com/benfogle/crossenv).
 To set up crossenv:
 
 ```
-./scripts/crossenv_setup.sh
+./bin/crossenv_setup.sh
 ```
 
 You can then activate with:
@@ -91,7 +95,7 @@ You can then activate with:
 From inside the virtual environment, you can inspect the set-up with:
 
 ```
-python scripts/sanity_check.py | less
+python bin/sanity_check.py | less
 ```
 
 This will display the environment used to install Python modules (including the
@@ -105,18 +109,25 @@ environment:
 
 - Modify the CPython build (see `tasks.py`)
 - Rerun the CPython build (`inv cpython --clean`) 
-- Rebuild the crossenv (`./scripts/crossenv_setup.sh`) 
-- Enter the crossenv and inspect the environment with `scripts/sanity_check.py`
+- Rebuild the crossenv (`./bin/crossenv_setup.sh`) 
+- Enter the crossenv and inspect the environment with `bin/sanity_check.py`
 
 ## Modules
 
 With the crossenv activated, we can build modules with normal `pip`.
 
-To install all the modules, you can run:
+There is a wrapper script that will apply modifications if we know about them.
+To run this you must first have the cross-env activated as described above.
 
-```
-# NOTE: run this from a clean terminal, _not_ through the Faasm CLI
-./scripts/install_modules.sh
+```bash
+# Install all supported modules
+inv install
+
+# Install numpy
+inv install numpy
+
+# (Attempt) to install arbitrary module
+inv install <module_name>
 ```
 
 Libraries will then be installed to 

@@ -16,9 +16,11 @@ from faasmcli.util.toolchain import (
     WASM_HOST,
 )
 
-from invoke import task
+from invoke import task, Failure
 
 PROJ_ROOT = dirname(realpath(__file__))
+THIRD_PARTY_DIR = join(PROJ_ROOT, "third-party")
+CROSSENV_DIR = join(PROJ_ROOT, "cross_venv", "cross")
 
 # The python library name might have a letter at the end of it,
 # e.g. for a debug build it'll be libpython3.8d.a and with
@@ -50,10 +52,37 @@ ENV_VARS.update(
     }
 )
 
+USABLE_CPUS = str(int(cpu_count()) - 1)
+
+# Modified libs with optional environment vars (see third-party/)
+MODIFIED_LIBS = {
+    "numpy": {"NPY_NUM_BUILD_JOBS": USABLE_CPUS},
+    "horovod": {"HOROVOD_WITH_MXNET": "1"},
+}
+
+# Libs that can be installed with no modifications
+UNMODIFIED_LIBS = [
+    "dulwich",
+    "Genshi",
+    "mxnet",
+    "pyaes",
+    "pyperf",
+    "pyperformance",
+    "six",
+]
 
 # See the CPython docs for more info:
 # - General: https://devguide.python.org/setup/#compile-and-build
 # - Static builds: https://wiki.python.org/moin/BuildStatically
+
+
+def _check_crossenv_on():
+    actual = os.environ.get("VIRTUAL_ENV")
+    if actual != CROSSENV_DIR:
+        print(
+            "Got VIRTUAL_ENV={} but expected {}".format(actual, CROSSENV_DIR)
+        )
+        raise Failure("Cross-env not activated")
 
 
 def _run_cpython_cmd(label, cmd_array):
@@ -120,7 +149,7 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
         "CONFIG_SITE=./config.site",
         "READELF=true",
         "./configure",
-        'LIBS="{}"'.format(link_libs),        
+        'LIBS="{}"'.format(link_libs),
         "CC={}".format(WASM_CC),
         "CXX={}".format(WASM_CXX),
         "CPP={}".format(WASM_CPP),
@@ -148,12 +177,10 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
             "modify", ["cat", "pyconfig-extra.h", ">>", "pyconfig.h"]
         )
 
-        cpus = int(cpu_count()) - 1
-
         # Note, the CPython static linking guide says to pass -static to
         # LDFLAGS here, but wasm-ld doesn't recognise this flag
         make_cmd = [
-            "make -j {}".format(cpus),
+            "make -j {}".format(USABLE_CPUS),
         ]
         _run_cpython_cmd("make", make_cmd)
         _run_cpython_cmd("libpython", ["make", LIBPYTHON_NAME])
@@ -162,3 +189,50 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
     _run_cpython_cmd("commoninstall", ["make", "commoninstall"])
     _run_cpython_cmd("bininstall", ["make", "bininstall"])
 
+
+@task
+def libs(ctx):
+    print("We currently support the following libraries:")
+
+    print("\n--- Unmodified ---")
+    for lib in UNMODIFIED_LIBS:
+        print(lib)
+
+    print("\n--- With modifications ---")
+    for lib in MODIFIED_LIBS:
+        print(lib)
+
+    print("")
+
+
+@task
+def install(ctx, lib):
+    _check_crossenv_on()
+
+    modified = list()
+    unmodified = list()
+
+    if lib == "all":
+        modified = MODIFIED_LIBS.keys()
+        unmodified = UNMODIFIED_LIBS
+    elif lib in MODIFIED_LIBS.keys():
+        modified = [lib]
+    elif lib in UNMODIFIED_LIBS:
+        unmodified = [lib]
+    else:
+        print("WARNING: module not recognised, may not work!")
+        unmodified = [lib]
+
+    for lib in modified:
+        print("Installing modified lib {}".format(lib))
+        shell_env = copy(os.environ)
+        shell_env.update(MODIFIED_LIBS[lib])
+
+        mod_dir = join(THIRD_PARTY_DIR, lib)
+        run(
+            "pip install .", cwd=mod_dir, shell=True, check=True, env=shell_env
+        )
+
+    for lib in unmodified:
+        print("Installing unmodified lib {}".format(lib))
+        run("pip install {}".format(lib), shell=True, check=True)
