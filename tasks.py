@@ -117,17 +117,12 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
     # statically link all the C-extensions we need, therefore these are only
     # relevant in the module builds.
     #
-    # NOTE: to generate shared wasm libraries we currently have to target
-    # Emscripten. However, the WASI headers will error because we're
-    # targeting a non-WASI platform, therefore we have to define __wasi__
-    # as well
     cc_shared = [
-        WASM_CC,
+        WASM_CC,       
         "-D__wasi__",
         "-nostdlib",
         "-nostdlib++",
         "-fPIC",
-        "-D__wasi__",
         "--target=wasm32-unknown-emscripten",
     ]
 
