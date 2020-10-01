@@ -1,7 +1,7 @@
 # Faasm CPython WebAssembly build
 
 This build cross-compiles CPython and a number of Python modules to WebAssembly
-for use in [Faasm](https://github.com/lsds/faasm).
+for use in [Faasm](https://github.com/faasm/faasm).
 
 You can see a list of the installed modules in the
 [`install_modules.sh`](scripts/install_modules.sh) script.
@@ -132,5 +132,5 @@ You can also set `DISTUTILS_DEBUG=1` to get distutils to print more info.
 ## Running in Faasm
 
 See the [Faasm python
-docs](https://github.com/lsds/faasm/blob/master/docs/python.md).
+docs](https://github.com/faasm/faasm/blob/master/docs/python.md).
 
