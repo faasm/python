@@ -56,15 +56,19 @@ USABLE_CPUS = str(int(cpu_count()) - 1)
 
 # Modified libs with optional environment vars (see third-party/)
 MODIFIED_LIBS = {
-    "numpy": {"NPY_NUM_BUILD_JOBS": USABLE_CPUS},
-    "horovod": {"HOROVOD_WITH_MXNET": "1"},
+    "numpy": {
+        "env": {"NPY_NUM_BUILD_JOBS": USABLE_CPUS},
+    },
+    "horovod": {
+        "env": {"HOROVOD_WITH_MXNET": "1"},
+    },
+    "mxnet": {"subdir": "python"},
 }
 
 # Libs that can be installed with no modifications
 UNMODIFIED_LIBS = [
     "dulwich",
     "Genshi",
-    "mxnet",
     "pyaes",
     "pyperf",
     "pyperformance",
@@ -118,7 +122,7 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
     # relevant in the module builds.
     #
     cc_shared = [
-        WASM_CC,       
+        WASM_CC,
         "-D__wasi__",
         "-nostdlib",
         "-nostdlib++",
@@ -187,6 +191,9 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
 
 @task
 def libs(ctx):
+    """
+    List supported libraries
+    """
     print("We currently support the following libraries:")
 
     print("\n--- Unmodified ---")
@@ -202,6 +209,9 @@ def libs(ctx):
 
 @task
 def install(ctx, lib):
+    """
+    Install cross-compiled libraries
+    """
     _check_crossenv_on()
 
     modified = list()
@@ -220,10 +230,16 @@ def install(ctx, lib):
 
     for lib in modified:
         print("Installing modified lib {}".format(lib))
+        lib_def = MODIFIED_LIBS[lib]
+
         shell_env = copy(os.environ)
-        shell_env.update(MODIFIED_LIBS[lib])
+        if "env" in lib_def:
+            shell_env.update(lib_def["env"])
 
         mod_dir = join(THIRD_PARTY_DIR, lib)
+        if "subdir" in lib_def:
+            mod_dir = join(mod_dir, lib_def["subdir"])
+
         run(
             "pip install .", cwd=mod_dir, shell=True, check=True, env=shell_env
         )

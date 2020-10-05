@@ -19,6 +19,10 @@ ${BUILD_PIP} install -e .
 
 echo "Installing cython"
 ${BUILD_PIP} install cython
+
+echo "Installing invoke"
+${BUILD_PIP} install invoke
+
 popd >> /dev/null
 
 pushd ${PROJ_ROOT} >> /dev/null

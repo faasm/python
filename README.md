@@ -145,3 +145,8 @@ You can also set `DISTUTILS_DEBUG=1` to get distutils to print more info.
 See the [Faasm python
 docs](https://github.com/lsds/faasm/blob/master/docs/python.md).
 
+## BLAS and LAPACK
+
+Faasm's normal BLAS and LAPACK support using CLAPACK should be picked up by
+numpy due to the addition of the [site.cfg](../third-party/numpy/site.cfg).
+
