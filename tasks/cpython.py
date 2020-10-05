@@ -62,7 +62,7 @@ def _run_cpython_cmd(label, cmd_array):
 
 
 @task(default=True)
-def cpython(ctx, clean=False, noconf=False, nobuild=False):
+def build(ctx, clean=False, noconf=False, nobuild=False):
     """
     Build CPython to WebAssembly
     """
