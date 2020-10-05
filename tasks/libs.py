@@ -21,8 +21,12 @@ MODIFIED_LIBS = {
     },
     "horovod": {
         "env": {"HOROVOD_WITH_MXNET": "1"},
+        "experimental": True,
     },
-    "mxnet": {"subdir": "python"},
+    "mxnet": {
+        "subdir": "python",
+        "experimental": True,
+    },
 }
 
 # Libs that can be installed with no modifications
@@ -57,8 +61,10 @@ def list(ctx):
         print(lib)
 
     print("\n--- With modifications ---")
-    for lib in MODIFIED_LIBS:
-        print(lib)
+    for lib, lib_def in MODIFIED_LIBS.items():
+        experimental = lib_def.get("experimental", False)
+        output = f"{lib} (experimental)" if experimental else lib
+        print(output)
 
     print("")
 
@@ -74,6 +80,14 @@ def install(ctx, lib):
     unmodified = list()
 
     if lib == "all":
+        # All except experimental
+        modified = [
+            lib_name
+            for lib_name, lib_def in MODIFIED_LIBS.items()
+            if not lib_def.get("experimental")
+        ]
+        unmodified = UNMODIFIED_LIBS
+    elif lib == "all-experimental":
         modified = MODIFIED_LIBS.keys()
         unmodified = UNMODIFIED_LIBS
     elif lib in MODIFIED_LIBS.keys():
@@ -84,9 +98,8 @@ def install(ctx, lib):
         print("WARNING: module not recognised, may not work!")
         unmodified = [lib]
 
-    for lib in modified:
+    for lib, lib_def in modified.items():
         print("Installing modified lib {}".format(lib))
-        lib_def = MODIFIED_LIBS[lib]
 
         shell_env = copy(os.environ)
         if "env" in lib_def:

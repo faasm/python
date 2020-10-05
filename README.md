@@ -121,7 +121,10 @@ To run this you must first have the cross-env activated as described above.
 
 ```bash
 # Install all supported modules
-inv libs.install
+inv libs.install all
+
+# Install all including experimental modules
+inv libs.install all-experimental
 
 # Install numpy
 inv libs.install numpy
@@ -139,6 +142,34 @@ You can debug module builds by running `python setup.py install` through your
 debugger.
 
 You can also set `DISTUTILS_DEBUG=1` to get distutils to print more info.
+
+## Experimental modules
+
+Some of the modules are experimental, these may require some extra set-up.
+
+### MXNet
+
+To install the Python MXNet module we first need to cross-compile MXNet:
+
+```
+# Update all mxnet submodules
+cd third-party/mxnet
+git submodule update --init
+
+# Run our MXNet cross-compile
+cd ../..
+inv mxnet
+```
+
+You can also clean and rebuild, and uninstall:
+
+```
+# Clean then build
+inv mxnet --clean
+
+# Uninstall mxnet
+inv mxnet.uninstall
+```
 
 ## Running in Faasm
 
