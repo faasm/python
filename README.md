@@ -7,7 +7,7 @@ You can try to install arbitrary packages, but the ones that definitely work
 can be listed with:
 
 ```bash
-inv libs
+inv libs.list
 ```
 
 The build uses the [Faasm
@@ -121,13 +121,13 @@ To run this you must first have the cross-env activated as described above.
 
 ```bash
 # Install all supported modules
-inv install
+inv libs.install
 
 # Install numpy
-inv install numpy
+inv libs.install numpy
 
 # (Attempt) to install arbitrary module
-inv install <module_name>
+inv libs.install <module_name>
 ```
 
 Libraries will then be installed to 

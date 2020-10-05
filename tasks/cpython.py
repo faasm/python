@@ -1,8 +1,8 @@
 import os
 
 from copy import copy
-from multiprocessing import cpu_count
-from os.path import join, exists, dirname, realpath
+from tasks.env import PROJ_ROOT, USABLE_CPUS
+from os.path import join, exists
 from subprocess import run
 
 from faasmcli.util.toolchain import (
@@ -16,11 +16,7 @@ from faasmcli.util.toolchain import (
     WASM_HOST,
 )
 
-from invoke import task, Failure
-
-PROJ_ROOT = dirname(realpath(__file__))
-THIRD_PARTY_DIR = join(PROJ_ROOT, "third-party")
-CROSSENV_DIR = join(PROJ_ROOT, "cross_venv", "cross")
+from invoke import task
 
 # The python library name might have a letter at the end of it,
 # e.g. for a debug build it'll be libpython3.8d.a and with
@@ -52,41 +48,9 @@ ENV_VARS.update(
     }
 )
 
-USABLE_CPUS = str(int(cpu_count()) - 1)
-
-# Modified libs with optional environment vars (see third-party/)
-MODIFIED_LIBS = {
-    "numpy": {
-        "env": {"NPY_NUM_BUILD_JOBS": USABLE_CPUS},
-    },
-    "horovod": {
-        "env": {"HOROVOD_WITH_MXNET": "1"},
-    },
-    "mxnet": {"subdir": "python"},
-}
-
-# Libs that can be installed with no modifications
-UNMODIFIED_LIBS = [
-    "dulwich",
-    "Genshi",
-    "pyaes",
-    "pyperf",
-    "pyperformance",
-    "six",
-]
-
 # See the CPython docs for more info:
 # - General: https://devguide.python.org/setup/#compile-and-build
 # - Static builds: https://wiki.python.org/moin/BuildStatically
-
-
-def _check_crossenv_on():
-    actual = os.environ.get("VIRTUAL_ENV")
-    if actual != CROSSENV_DIR:
-        print(
-            "Got VIRTUAL_ENV={} but expected {}".format(actual, CROSSENV_DIR)
-        )
-        raise Failure("Cross-env not activated")
 
 
 def _run_cpython_cmd(label, cmd_array):
@@ -97,7 +61,7 @@ def _run_cpython_cmd(label, cmd_array):
     run(cmd_str, shell=True, check=True, cwd=CPYTHON_SRC, env=ENV_VARS)
 
 
-@task
+@task(default=True)
 def cpython(ctx, clean=False, noconf=False, nobuild=False):
     """
     Build CPython to WebAssembly
@@ -187,63 +151,3 @@ def cpython(ctx, clean=False, noconf=False, nobuild=False):
     # Run specific install tasks (see cpython/Makefile)
     _run_cpython_cmd("commoninstall", ["make", "commoninstall"])
     _run_cpython_cmd("bininstall", ["make", "bininstall"])
-
-
-@task
-def libs(ctx):
-    """
-    List supported libraries
-    """
-    print("We currently support the following libraries:")
-
-    print("\n--- Unmodified ---")
-    for lib in UNMODIFIED_LIBS:
-        print(lib)
-
-    print("\n--- With modifications ---")
-    for lib in MODIFIED_LIBS:
-        print(lib)
-
-    print("")
-
-
-@task
-def install(ctx, lib):
-    """
-    Install cross-compiled libraries
-    """
-    _check_crossenv_on()
-
-    modified = list()
-    unmodified = list()
-
-    if lib == "all":
-        modified = MODIFIED_LIBS.keys()
-        unmodified = UNMODIFIED_LIBS
-    elif lib in MODIFIED_LIBS.keys():
-        modified = [lib]
-    elif lib in UNMODIFIED_LIBS:
-        unmodified = [lib]
-    else:
-        print("WARNING: module not recognised, may not work!")
-        unmodified = [lib]
-
-    for lib in modified:
-        print("Installing modified lib {}".format(lib))
-        lib_def = MODIFIED_LIBS[lib]
-
-        shell_env = copy(os.environ)
-        if "env" in lib_def:
-            shell_env.update(lib_def["env"])
-
-        mod_dir = join(THIRD_PARTY_DIR, lib)
-        if "subdir" in lib_def:
-            mod_dir = join(mod_dir, lib_def["subdir"])
-
-        run(
-            "pip install .", cwd=mod_dir, shell=True, check=True, env=shell_env
-        )
-
-    for lib in unmodified:
-        print("Installing unmodified lib {}".format(lib))
-        run("pip install {}".format(lib), shell=True, check=True)
