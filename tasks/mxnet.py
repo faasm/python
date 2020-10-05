@@ -56,7 +56,7 @@ def uninstall(ctx):
 
 
 @task(default=True)
-def install(ctx, clean=False):
+def install(ctx, clean=False, shared=True):
     """
     Installs the MXNet system library
     """
@@ -66,11 +66,15 @@ def install(ctx, clean=False):
 
     env_vars = copy(os.environ)
 
+    # Set up different flags for shared/ static    
+    shared_flag = "ON" if shared else "OFF"
+
     # Note we have to build a shared lib for use with Python
     cmake_cmd = [
         "cmake",
         "-GNinja",
         "-DFAASM_BUILD_TYPE=wasm",
+        "-DFAASM_BUILD_SHARED={}".format(shared_flag),
         "-DCMAKE_TOOLCHAIN_FILE={}".format(FAASM_TOOLCHAIN_FILE),
         "-DCMAKE_BUILD_TYPE=Release",
         "-DCMAKE_INSTALL_PREFIX={}".format(SYSROOT_INSTALL_PREFIX),
@@ -90,8 +94,8 @@ def install(ctx, clean=False):
         "-DUSE_SIGNAL_HANDLER=OFF",
         "-DUSE_CCACHE=OFF",
         "-DUSE_CPP_PACKAGE=ON",
-        "-DMXNET_BUILD_SHARED_LIBS=ON",
-        "-DBUILD_SHARED_LIBS=ON",
+        "-DMXNET_BUILD_SHARED_LIBS={}".format(shared_flag),
+        "-DBUILD_SHARED_LIBS={}".format(shared_flag),
         MXNET_DIR,
     ]
 
