@@ -13,10 +13,11 @@
 [submodule "third-party/pyfaasm"]
 	path = third-party/pyfaasm
     url = https://github.com/faasm/pyfaasm.git
-
 [submodule "third-party/horovod"]
 	path = third-party/horovod
-	url = https://github.com/horovod/horovod
+    url = https://github.com/faasm/horovod
+    branch = faasm
 [submodule "third-party/mxnet"]
 	path = third-party/mxnet
-	url = https://github.com/faasm/incubator-mxnet
+    url = https://github.com/faasm/incubator-mxnet
+    branch = faasm
