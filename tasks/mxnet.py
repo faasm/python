@@ -71,12 +71,12 @@ def install(ctx, clean=False, shared=True):
     cmake_cmd = [
         "cmake",
         "-GNinja",
-        "-DFAASM_BUILD_TYPE=wasm",
         "-DFAASM_BUILD_SHARED={}".format(shared_flag),
         "-DCMAKE_TOOLCHAIN_FILE={}".format(FAASM_TOOLCHAIN_FILE),
         "-DCMAKE_BUILD_TYPE=Release",
         "-DCMAKE_INSTALL_PREFIX={}".format(FAASM_SYSROOT),
         "-DCMAKE_INSTALL_LIBDIR=lib/wasm32-wasi",
+        "-DCMAKE_DL_LIBS=",
         "-DUSE_CUDA=OFF",
         "-DUSE_LAPACK=OFF",
         "-DUSE_MKL_IF_AVAILABLE=OFF",
