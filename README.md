@@ -7,7 +7,7 @@ You can try to install arbitrary packages, but the ones that definitely work
 can be listed with:
 
 ```bash
-inv libs.list
+inv libs.show
 ```
 
 The build uses the [Faasm

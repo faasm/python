@@ -3,16 +3,11 @@ from shutil import rmtree
 from subprocess import run
 from copy import copy
 
+from os import makedirs
 import os
 
-from faasmcli.util.env import (
-    FAASM_TOOLCHAIN_FILE,
-    SYSROOT_INSTALL_PREFIX,
-    FAASM_SYSROOT,
-)
-from faasmcli.util.files import clean_dir
 from invoke import task
-from tasks.env import THIRD_PARTY_DIR
+from tasks.env import THIRD_PARTY_DIR, FAASM_SYSROOT, FAASM_TOOLCHAIN_FILE
 
 MXNET_DIR = join(THIRD_PARTY_DIR, "mxnet")
 
@@ -61,8 +56,11 @@ def install(ctx, clean=False, shared=True):
     Installs the MXNet system library
     """
     work_dir = join(MXNET_DIR, "build")
+    
+    if clean:
+        rmtree(work_dir)
 
-    clean_dir(work_dir, clean)
+    makedirs(work_dir, exist_ok=True)
 
     env_vars = copy(os.environ)
 
@@ -77,7 +75,7 @@ def install(ctx, clean=False, shared=True):
         "-DFAASM_BUILD_SHARED={}".format(shared_flag),
         "-DCMAKE_TOOLCHAIN_FILE={}".format(FAASM_TOOLCHAIN_FILE),
         "-DCMAKE_BUILD_TYPE=Release",
-        "-DCMAKE_INSTALL_PREFIX={}".format(SYSROOT_INSTALL_PREFIX),
+        "-DCMAKE_INSTALL_PREFIX={}".format(FAASM_SYSROOT),
         "-DCMAKE_INSTALL_LIBDIR=lib/wasm32-wasi",
         "-DUSE_CUDA=OFF",
         "-DUSE_LAPACK=OFF",

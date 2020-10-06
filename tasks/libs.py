@@ -1,10 +1,9 @@
 import os
 
 from copy import copy
-from multiprocessing import cpu_count
-from os.path import join, dirname, realpath
+from os.path import join
 from subprocess import run
-from tasks.env import USABLE_CPUS, PROJ_ROOT, THIRD_PARTY_DIR, CROSSENV_DIR
+from tasks.env import USABLE_CPUS, THIRD_PARTY_DIR, CROSSENV_DIR
 
 from invoke import task, Failure
 
@@ -44,36 +43,38 @@ def _check_crossenv_on():
 
 
 @task
-def list(ctx):
+def show(ctx):
     """
     List supported libraries
     """
     print("We currently support the following libraries:")
 
     print("\n--- Unmodified ---")
-    for lib in UNMODIFIED_LIBS:
-        print(lib)
+    for lib_name in UNMODIFIED_LIBS:
+        print(lib_name)
 
     print("\n--- With modifications ---")
-    for lib, lib_def in MODIFIED_LIBS.items():
+    for lib_name, lib_def in MODIFIED_LIBS.items():
         experimental = lib_def.get("experimental", False)
-        output = f"{lib} (experimental)" if experimental else lib
+        output = (
+            "{} (experimental)".format(lib_name) if experimental else lib_name
+        )
         print(output)
 
     print("")
 
 
 @task
-def install(ctx, lib):
+def install(ctx, lib_name):
     """
     Install cross-compiled libraries
     """
     _check_crossenv_on()
 
-    modified = list()
+    modified = dict()
     unmodified = list()
 
-    if lib == "all":
+    if lib_name == "all":
         # All except experimental
         modified = [
             lib_name
@@ -81,25 +82,25 @@ def install(ctx, lib):
             if not lib_def.get("experimental")
         ]
         unmodified = UNMODIFIED_LIBS
-    elif lib == "all-experimental":
+    elif lib_name == "all-experimental":
         modified = MODIFIED_LIBS.keys()
         unmodified = UNMODIFIED_LIBS
-    elif lib in MODIFIED_LIBS.keys():
-        modified = [lib]
-    elif lib in UNMODIFIED_LIBS:
-        unmodified = [lib]
+    elif lib_name in MODIFIED_LIBS.keys():
+        modified = {lib_name: dict()}
+    elif lib_name in UNMODIFIED_LIBS:
+        unmodified = [lib_name]
     else:
         print("WARNING: module not recognised, may not work!")
-        unmodified = [lib]
+        unmodified = [lib_name]
 
-    for lib, lib_def in modified.items():
-        print("Installing modified lib {}".format(lib))
+    for lib_name, lib_def in modified.items():
+        print("Installing modified lib {}".format(lib_name))
 
         shell_env = copy(os.environ)
         if "env" in lib_def:
             shell_env.update(lib_def["env"])
 
-        mod_dir = join(THIRD_PARTY_DIR, lib)
+        mod_dir = join(THIRD_PARTY_DIR, lib_name)
         if "subdir" in lib_def:
             mod_dir = join(mod_dir, lib_def["subdir"])
 
@@ -107,6 +108,6 @@ def install(ctx, lib):
             "pip install .", cwd=mod_dir, shell=True, check=True, env=shell_env
         )
 
-    for lib in unmodified:
-        print("Installing unmodified lib {}".format(lib))
-        run("pip install {}".format(lib), shell=True, check=True)
+    for lib_name in unmodified:
+        print("Installing unmodified lib {}".format(lib_name))
+        run("pip install {}".format(lib_name), shell=True, check=True)
