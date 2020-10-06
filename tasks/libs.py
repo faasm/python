@@ -4,15 +4,9 @@ from copy import copy
 from multiprocessing import cpu_count
 from os.path import join, dirname, realpath
 from subprocess import run
-
+from tasks.env import USABLE_CPUS, PROJ_ROOT, THIRD_PARTY_DIR, CROSSENV_DIR
 
 from invoke import task, Failure
-
-USABLE_CPUS = str(int(cpu_count()) - 1)
-
-PROJ_ROOT = dirname(realpath(__file__))
-THIRD_PARTY_DIR = join(PROJ_ROOT, "third-party")
-CROSSENV_DIR = join(PROJ_ROOT, "cross_venv", "cross")
 
 # Modified libs
 MODIFIED_LIBS = {

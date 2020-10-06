@@ -73,6 +73,9 @@ def build(ctx, clean=False, noconf=False, nobuild=False):
     # itself
     cflags = [
         WASM_CFLAGS,
+        "-m32", 
+        "-DCONFIG_32",
+        "-DANSI",
     ]
 
     ldflags = [
@@ -104,7 +107,7 @@ def build(ctx, clean=False, noconf=False, nobuild=False):
         "-Xlinker --no-gc-sections",
     ]
 
-    # Link in extra printscan
+    # Link in extra wasi-libc long double support (see wasi-libc docs)
     link_libs = "-lc-printscan-long-double"
 
     # Configure
