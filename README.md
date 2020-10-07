@@ -56,6 +56,13 @@ This will install Python at `/usr/local/faasm/python3.8`.
 When cross-compiling we _have_ to use this Python when running commands and
 scripts on the build machine (not any other Python that might be installed).
 
+### Upgrading Pip
+
+Do **not** upgrade Pip in the build machine copy of Python.
+
+The versions of Pip and Python for wasm and the build machine must match 
+exactly.
+
 ### Building CPython to WebAssembly
 
 You can build CPython by running (with optional `--clean`):

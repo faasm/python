@@ -24,11 +24,9 @@ pushd ${PYTHON_VER} >> /dev/null
 make -j ${N_PROC} altinstall
 popd >> /dev/null
 
-# Update pip
-${PIP_BIN} install -U pip
-
 # Print version
 ${PYTHON_BIN} --version
+${PIP_BIN} --version
 
 popd >> /dev/null
 
