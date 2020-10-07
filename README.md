@@ -48,8 +48,7 @@ compiling and the version on the build machine need to match _exactly_.
 To set up the relevant build machine python:
 
 ```
-cd ansible
-ansible-playbook python3_8.yml
+./bin/install_build_python.sh
 ```
 
 This will install Python at `/usr/local/faasm/python3.8`.
@@ -121,13 +120,13 @@ To run this you must first have the cross-env activated as described above.
 
 ```bash
 # Install all supported modules
-inv libs.install all
+inv libs.install 
 
-# Install all including experimental modules
-inv libs.install all-experimental
+# Install experimental modules
+inv libs.install --experimental
 
 # Install numpy
-inv libs.install numpy
+inv libs.install --name numpy
 
 # (Attempt) to install arbitrary module
 inv libs.install <module_name>
@@ -149,7 +148,8 @@ Some of the modules are experimental, these may require some extra set-up.
 
 ### MXNet
 
-To install the Python MXNet module we first need to cross-compile MXNet:
+To install the Python MXNet module we first need to cross-compile the MXNet
+shared library:
 
 ```
 # Update all mxnet submodules
@@ -161,10 +161,10 @@ cd ../..
 inv mxnet
 ```
 
-You can also clean and rebuild, and uninstall:
+### Cleaning and uninstalling 
 
 ```
-# Clean then build
+# Clean then rebuild
 inv mxnet --clean
 
 # Uninstall mxnet

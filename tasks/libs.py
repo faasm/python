@@ -4,26 +4,33 @@ from copy import copy
 from os.path import join
 from subprocess import run
 from tasks.env import USABLE_CPUS, THIRD_PARTY_DIR, CROSSENV_DIR
-
 from invoke import task, Failure
+
+MXNET_LIB = "/usr/local/faasm/llvm-sysroot/lib/wasm32-wasi/libmxnet.so"
+
 
 # Modified libs
 MODIFIED_LIBS = {
     "numpy": {
         "env": {"NPY_NUM_BUILD_JOBS": USABLE_CPUS},
     },
+}
+
+MODIFIED_LIBS_EXPERIMENTAL = {
     "horovod": {
         "env": {"HOROVOD_WITH_MXNET": "1"},
-        "experimental": True,
     },
     "mxnet": {
         "subdir": "python",
-        "experimental": True,
+        "env": {"MXNET_LIBRARY_PATH": MXNET_LIB},
     },
 }
 
-# Libs that can be installed with no modifications
-UNMODIFIED_LIBS = [
+MODIFIED_LIBS_ALL = copy(MODIFIED_LIBS)
+MODIFIED_LIBS_ALL.update(MODIFIED_LIBS_EXPERIMENTAL)
+
+# Libs that can be installed directly from PyPI
+PYPI_LIBS = [
     "dulwich",
     "Genshi",
     "pyaes",
@@ -49,51 +56,48 @@ def show(ctx):
     """
     print("We currently support the following libraries:")
 
-    print("\n--- Unmodified ---")
-    for lib_name in UNMODIFIED_LIBS:
+    print("\n--- Direct from PyPI ---")
+    for lib_name in PYPI_LIBS:
         print(lib_name)
 
     print("\n--- With modifications ---")
-    for lib_name, lib_def in MODIFIED_LIBS.items():
-        experimental = lib_def.get("experimental", False)
-        output = (
-            "{} (experimental)".format(lib_name) if experimental else lib_name
-        )
-        print(output)
+    for lib_name in MODIFIED_LIBS.keys():
+        print(lib_name)
+
+    print("\n--- Experimental ---")
+    for lib_name in MODIFIED_LIBS_EXPERIMENTAL.keys():
+        print(lib_name)
 
     print("")
 
 
 @task
-def install(ctx, lib_name):
+def install(ctx, name=None, experimental=False):
     """
     Install cross-compiled libraries
     """
     _check_crossenv_on()
 
-    modified = dict()
-    unmodified = list()
+    # Work out which modules to install
+    modified_libs = dict()
+    pypi_libs = list()
 
-    if lib_name == "all":
-        # All except experimental
-        modified = [
-            lib_name
-            for lib_name, lib_def in MODIFIED_LIBS.items()
-            if not lib_def.get("experimental")
-        ]
-        unmodified = UNMODIFIED_LIBS
-    elif lib_name == "all-experimental":
-        modified = MODIFIED_LIBS.keys()
-        unmodified = UNMODIFIED_LIBS
-    elif lib_name in MODIFIED_LIBS.keys():
-        modified = {lib_name: dict()}
-    elif lib_name in UNMODIFIED_LIBS:
-        unmodified = [lib_name]
+    if name == "all":
+        if experimental:
+            modified_libs = MODIFIED_LIBS_EXPERIMENTAL
+        else:
+            modified_libs = MODIFIED_LIBS
+            pypi_libs = PYPI_LIBS
+    elif name in MODIFIED_LIBS_ALL.keys():
+        modified_libs = {name: MODIFIED_LIBS_ALL[name]}
     else:
-        print("WARNING: module not recognised, may not work!")
-        unmodified = [lib_name]
+        if name not in PYPI_LIBS:
+            print("WARNING: {} not definitely supported!".format(name))
 
-    for lib_name, lib_def in modified.items():
+        pypi_libs = [name]
+
+    # Install modified libs
+    for lib_name, lib_def in modified_libs.items():
         print("Installing modified lib {}".format(lib_name))
 
         shell_env = copy(os.environ)
@@ -101,13 +105,16 @@ def install(ctx, lib_name):
             shell_env.update(lib_def["env"])
 
         mod_dir = join(THIRD_PARTY_DIR, lib_name)
-        if "subdir" in lib_def:
-            mod_dir = join(mod_dir, lib_def["subdir"])
+        subdir = lib_def.get("subdir")
+        if subdir:
+            mod_dir = join(mod_dir, subdir)
+            print("Installing from subdir: {}".format(mod_dir))
 
         run(
             "pip install .", cwd=mod_dir, shell=True, check=True, env=shell_env
         )
 
-    for lib_name in unmodified:
-        print("Installing unmodified lib {}".format(lib_name))
+    # Install pypi libs
+    for lib_name in pypi_libs:
+        print("Installing lib from PyPI {}".format(lib_name))
         run("pip install {}".format(lib_name), shell=True, check=True)
