@@ -21,3 +21,11 @@
 	path = third-party/mxnet
     url = https://github.com/faasm/incubator-mxnet
     branch = faasm
+[submodule "third-party/cffi"]
+	path = third-party/cffi
+    url = https://github.com/faasm/cffi-mirror.git
+    branch = faasm
+[submodule "third-party/libffi"]
+	path = third-party/libffi
+    url = https://github.com/faasm/libffi.git
+    branch = faasm

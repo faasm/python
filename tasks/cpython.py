@@ -7,13 +7,12 @@ from subprocess import run
 
 from faasmcli.util.toolchain import (
     WASM_CC,
-    WASM_CPP,
-    WASM_AR,
-    WASM_CXX,
-    WASM_RANLIB,
     WASM_BUILD,
-    WASM_CFLAGS,
     WASM_HOST,
+    BASE_CONFIG_CMD,
+    BASE_CONFIG_FLAGS,
+    WASM_CFLAGS_SHARED,
+    WASM_LDFLAGS_SHARED,
 )
 
 from invoke import task
@@ -69,43 +68,16 @@ def build(ctx, clean=False, noconf=False, nobuild=False):
     if exists(join(CPYTHON_SRC, "Makefile")) and clean:
         _run_cpython_cmd("clean", ["make", "clean"])
 
-    # These flags are relevant for building static extensions and CPython
-    # itself
-    cflags = [
-        WASM_CFLAGS,
-        "-m32",
-        "-DCONFIG_32",
-        "-DANSI",
-    ]
-
-    ldflags = [
-        "-static",
-        "-Xlinker --no-gc-sections",
-    ]
-
     # Shared compiler and liker arguments are used to build all C-extensions
     # in both the CPython and module builds. However, in the CPython build we
     # statically link all the C-extensions we need, therefore these are only
     # relevant in the module builds.
     #
-    cc_shared = [
-        WASM_CC,
-        "-D__wasi__",
-        "-nostdlib",
-        "-nostdlib++",
-        "-fPIC",
-        "--target=wasm32-unknown-emscripten",
-    ]
+    cc_shared = [WASM_CC]
+    cc_shared.extend(WASM_CFLAGS_SHARED)
 
-    ldshared = [
-        WASM_CC,
-        "-nostdlib",
-        "-nostdlib++",
-        "-Xlinker --no-entry",
-        "-Xlinker --shared",
-        "-Xlinker --export-all",
-        "-Xlinker --no-gc-sections",
-    ]
+    ldshared = [WASM_CC]
+    ldshared.extend(WASM_LDFLAGS_SHARED)
 
     # Link in extra wasi-libc long double support (see wasi-libc docs)
     link_libs = "-lc-printscan-long-double"
@@ -115,16 +87,12 @@ def build(ctx, clean=False, noconf=False, nobuild=False):
         "CONFIG_SITE=./config.site",
         "READELF=true",
         "./configure",
+    ]
+    configure_cmd.extend(BASE_CONFIG_CMD)
+    configure_cmd.extend(BASE_CONFIG_FLAGS)
+    configure_cmd.extend([
         'LIBS="{}"'.format(link_libs),
-        "CC={}".format(WASM_CC),
-        "CXX={}".format(WASM_CXX),
-        "CPP={}".format(WASM_CPP),
-        "AR={}".format(WASM_AR),
-        "RANLIB={}".format(WASM_RANLIB),
         "LD={}".format(WASM_CC),
-        'CFLAGS="{}"'.format(" ".join(cflags)),
-        'CPPFLAGS="{}"'.format(" ".join(cflags)),
-        'LDFLAGS="{}"'.format(" ".join(ldflags)),
         'CCSHARED="{}"'.format(" ".join(cc_shared)),
         'LDSHARED="{}"'.format(" ".join(ldshared)),
         "--disable-ipv6",
@@ -132,7 +100,7 @@ def build(ctx, clean=False, noconf=False, nobuild=False):
         "--build={}".format(WASM_BUILD),
         "--host={}".format(WASM_HOST),
         "--prefix={}".format(INSTALL_DIR),
-    ]
+    ])
 
     if not noconf:
         _run_cpython_cmd("configure", configure_cmd)
