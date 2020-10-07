@@ -146,7 +146,7 @@ You can also set `DISTUTILS_DEBUG=1` to get distutils to print more info.
 
 Some of the modules are experimental, these may require some extra set-up.
 
-### MXNet
+### MXNet and Horovod
 
 To install the Python MXNet module we first need to cross-compile the MXNet
 shared library:
@@ -156,9 +156,17 @@ shared library:
 cd third-party/mxnet
 git submodule update --init
 
-# Run our MXNet cross-compile
+# Run our MXNet cross-compile (outside crossenv)
 cd ../..
 inv mxnet
+```
+
+Then we can install mxnet and horovod:
+
+```
+. ./cross_venv/bin/activate
+inv libs.install --name=mxnet
+inv libs.install --name=horovod
 ```
 
 ### Cleaning and uninstalling 

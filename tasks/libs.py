@@ -82,7 +82,7 @@ def install(ctx, name=None, experimental=False):
     modified_libs = dict()
     pypi_libs = list()
 
-    if name == "all":
+    if not name:
         if experimental:
             modified_libs = MODIFIED_LIBS_EXPERIMENTAL
         else:
