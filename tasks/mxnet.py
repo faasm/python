@@ -1,4 +1,4 @@
-from os.path import join, exists 
+from os.path import join, exists
 from shutil import rmtree
 from subprocess import run
 from copy import copy
@@ -56,7 +56,7 @@ def install(ctx, clean=False, shared=True):
     Installs the MXNet system library
     """
     work_dir = join(MXNET_DIR, "build")
-    
+
     if clean:
         rmtree(work_dir)
 
@@ -64,7 +64,7 @@ def install(ctx, clean=False, shared=True):
 
     env_vars = copy(os.environ)
 
-    # Set up different flags for shared/ static    
+    # Set up different flags for shared/ static
     shared_flag = "ON" if shared else "OFF"
 
     # Note we have to build a shared lib for use with Python

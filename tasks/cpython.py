@@ -73,7 +73,7 @@ def build(ctx, clean=False, noconf=False, nobuild=False):
     # itself
     cflags = [
         WASM_CFLAGS,
-        "-m32", 
+        "-m32",
         "-DCONFIG_32",
         "-DANSI",
     ]
