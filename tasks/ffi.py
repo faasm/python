@@ -1,15 +1,13 @@
 from os.path import join, exists
 from subprocess import run
 
-from tasks.env import USABLE_CPUS
-
 from faasmcli.util.toolchain import (
     WASM_CC,
     WASM_BUILD,
     WASM_HOST,
     BASE_CONFIG_CMD,
-    WASM_CFLAGS_SHARED,
     WASM_LDFLAGS_SHARED,
+    BASE_CONFIG_FLAGS_SHARED,
 )
 
 from invoke import task
@@ -35,6 +33,7 @@ def build(ctx, clean=False):
     # Configure
     configure_cmd = ["./configure"]
     configure_cmd.extend(BASE_CONFIG_CMD)
+    configure_cmd.extend(BASE_CONFIG_FLAGS_SHARED)
     configure_cmd.extend(
         [
             "LD={}".format(WASM_CC),
