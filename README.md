@@ -152,8 +152,10 @@ To install the Python MXNet module we first need to cross-compile the MXNet
 shared library:
 
 ```
-# Update all mxnet submodules
+# Update all submodules
 cd third-party/mxnet
+git submodule update --init
+cd ../horovod
 git submodule update --init
 
 # Run our MXNet cross-compile (outside crossenv)

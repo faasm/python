@@ -7,7 +7,9 @@ from tasks.env import USABLE_CPUS, THIRD_PARTY_DIR, CROSSENV_DIR
 from invoke import task, Failure
 
 MXNET_LIB = "/usr/local/faasm/llvm-sysroot/lib/wasm32-wasi/libmxnet.so"
-
+CMAKE_TOOLCHAIN_FILE = (
+    "/usr/local/code/faasm/third-party/faasm-toolchain/WasiToolchain.cmake"
+)
 
 # Modified libs
 MODIFIED_LIBS = {
@@ -18,7 +20,16 @@ MODIFIED_LIBS = {
 
 MODIFIED_LIBS_EXPERIMENTAL = {
     "horovod": {
-        "env": {"HOROVOD_WITH_MXNET": "1"},
+        "env": {
+            "MAKEFLAGS": "-j{}".format(USABLE_CPUS),
+            "HOROVOD_TOOLCHAIN_FILE": CMAKE_TOOLCHAIN_FILE,
+            "HOROVOD_WITH_MXNET": "1",
+            "HOROVOD_WITH_MPI": "1",
+            "HOROVOD_WITH_TENSORFLOW": "0",
+            "HOROVOD_WITH_PYTORCH": "0",
+            "HOROVOD_WITHOUT_GLOO": "1",
+        },
+        "pip_cmd": "pip install .[mxnet]",
     },
     "mxnet": {
         "subdir": "python",
@@ -104,15 +115,17 @@ def install(ctx, name=None, experimental=False):
         if "env" in lib_def:
             shell_env.update(lib_def["env"])
 
+        # Work out subdirectory
         mod_dir = join(THIRD_PARTY_DIR, lib_name)
         subdir = lib_def.get("subdir")
         if subdir:
             mod_dir = join(mod_dir, subdir)
             print("Installing from subdir: {}".format(mod_dir))
 
-        run(
-            "pip install .", cwd=mod_dir, shell=True, check=True, env=shell_env
-        )
+        # Execute the pip command
+        pip_cmd = lib_def.get("pip_cmd", "pip install .")
+        print(pip_cmd)
+        run(pip_cmd, cwd=mod_dir, shell=True, check=True, env=shell_env)
 
     # Install pypi libs
     for lib_name in pypi_libs:
