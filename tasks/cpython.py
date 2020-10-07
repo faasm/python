@@ -111,8 +111,6 @@ def build(ctx, clean=False, noconf=False, nobuild=False):
             "modify", ["cat", "pyconfig-extra.h", ">>", "pyconfig.h"]
         )
 
-        # Note, the CPython static linking guide says to pass -static to
-        # LDFLAGS here, but wasm-ld doesn't recognise this flag
         make_cmd = [
             "make -j {}".format(USABLE_CPUS),
         ]
