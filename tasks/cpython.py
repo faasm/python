@@ -13,6 +13,7 @@ from faasmcli.util.toolchain import (
     BASE_CONFIG_FLAGS,
     WASM_CFLAGS_SHARED,
     WASM_LDFLAGS_SHARED,
+    build_config_cmd,
 )
 
 from invoke import task
@@ -72,32 +73,22 @@ def build(ctx, clean=False, noconf=False, nobuild=False):
     # in both the CPython and module builds. However, in the CPython build we
     # statically link all the C-extensions we need, therefore these are only
     # relevant in the module builds.
-    #
-    cc_shared = " ".join([WASM_CC] + WASM_CFLAGS_SHARED)
-    ldshared = " ".join([WASM_CC] + WASM_LDFLAGS_SHARED)
 
     # Link in extra wasi-libc long double support (see wasi-libc docs)
     link_libs = "-lc-printscan-long-double"
 
     # Configure
-    configure_cmd = [
-        "CONFIG_SITE=./config.site",
-        "READELF=true",
-        "./configure",
-    ]
-    configure_cmd.extend(BASE_CONFIG_CMD)
-    configure_cmd.extend(BASE_CONFIG_FLAGS)
-    configure_cmd.extend([
-        'LIBS="{}"'.format(link_libs),
-        "LD={}".format(WASM_CC),
-        'CCSHARED="{}"'.format(cc_shared),
-        'LDSHARED="{}"'.format(ldshared),
-        "--disable-ipv6",
-        "--disable-shared",
-        "--build={}".format(WASM_BUILD),
-        "--host={}".format(WASM_HOST),
-        "--prefix={}".format(INSTALL_DIR),
-    ])
+    configure_cmd = build_config_cmd(
+        [
+            "CONFIG_SITE=./config.site",
+            "READELF=true",
+            "./configure",
+            'LIBS="{}"'.format(link_libs),
+            "--disable-ipv6",
+            "--disable-shared",
+            "--prefix={}".format(INSTALL_DIR),
+        ]
+    )
 
     if not noconf:
         _run_cpython_cmd("configure", configure_cmd)

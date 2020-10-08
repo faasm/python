@@ -2,21 +2,31 @@ from os.path import join, exists
 from subprocess import run
 
 from faasmcli.util.toolchain import (
-    WASM_CC,
-    WASM_BUILD,
-    WASM_HOST,
     BASE_CONFIG_CMD,
-    WASM_LDFLAGS_SHARED,
     BASE_CONFIG_FLAGS_SHARED,
+    build_config_cmd,
 )
 
 from invoke import task
 
 from os import makedirs
 
-from tasks.env import THIRD_PARTY_DIR 
+from tasks.env import THIRD_PARTY_DIR
+
 LIBFFI_DIR = join(THIRD_PARTY_DIR, "libffi")
 PREFIX = join(LIBFFI_DIR, "install")
+
+
+@task
+def autoconf(ctx):
+    """
+    Runs autoconf on libffi
+    """
+    autoconf_cmd = build_config_cmd([
+            "autoconf",
+            ])
+
+    run(" ".join(autoconf_cmd), shell=True, check=True, cwd=LIBFFI_DIR)
 
 
 @task(default=True)
@@ -36,10 +46,6 @@ def build(ctx, clean=False):
     configure_cmd.extend(BASE_CONFIG_FLAGS_SHARED)
     configure_cmd.extend(
         [
-            "LD={}".format(WASM_CC),
-            'LDFLAGS="{}"'.format(" ".join(WASM_LDFLAGS_SHARED)),
-            "--build={}".format(WASM_BUILD),
-            "--host={}".format(WASM_HOST),
             "--prefix={}".format(PREFIX),
         ]
     )
