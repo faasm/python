@@ -2,31 +2,18 @@ from os.path import join, exists
 from subprocess import run
 
 from faasmcli.util.toolchain import (
-    BASE_CONFIG_CMD,
-    BASE_CONFIG_FLAGS_SHARED,
     build_config_cmd,
+    run_autotools,
 )
 
 from invoke import task
 
 from os import makedirs
 
-from tasks.env import THIRD_PARTY_DIR
+from tasks.env import THIRD_PARTY_DIR, USABLE_CPUS
 
 LIBFFI_DIR = join(THIRD_PARTY_DIR, "libffi")
 PREFIX = join(LIBFFI_DIR, "install")
-
-
-@task
-def autoconf(ctx):
-    """
-    Runs autoconf on libffi
-    """
-    autoconf_cmd = build_config_cmd([
-            "autoconf",
-            ])
-
-    run(" ".join(autoconf_cmd), shell=True, check=True, cwd=LIBFFI_DIR)
 
 
 @task(default=True)
@@ -40,14 +27,22 @@ def build(ctx, clean=False):
     if not exists(PREFIX):
         makedirs(PREFIX)
 
-    # Configure
-    configure_cmd = ["./configure"]
-    configure_cmd.extend(BASE_CONFIG_CMD)
-    configure_cmd.extend(BASE_CONFIG_FLAGS_SHARED)
-    configure_cmd.extend(
-        [
-            "--prefix={}".format(PREFIX),
-        ]
-    )
+    # Autotools
+    run_autotools(LIBFFI_DIR)
 
-    run(" ".join(configure_cmd), check=True, shell=True, cwd=LIBFFI_DIR)
+    # Configure
+    configure_cmd = build_config_cmd(
+        [
+            "./configure",
+            "--prefix={}".format(PREFIX),
+            "--disable-multi-os-directory",
+            "--disable-docs",
+        ],
+        shared=True,
+    )
+    configure_cmd = " ".join(configure_cmd)
+    run(configure_cmd, check=True, shell=True, cwd=LIBFFI_DIR)
+
+    # Run make
+    make_cmd = ["make", "-j {}".format(USABLE_CPUS)]
+    run(" ".join(make_cmd), shell=True, check=True, cwd=LIBFFI_DIR)
