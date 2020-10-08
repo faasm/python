@@ -25,3 +25,6 @@
 	path = third-party/cffi
     url = https://github.com/faasm/cffi-mirror.git
     branch = faasm
+[submodule "third-party/libffi"]
+	path = third-party/libffi
+	url = https://github.com/faasm/libffi.git
