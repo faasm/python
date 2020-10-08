@@ -10,7 +10,7 @@ from faasmcli.util.toolchain import (
 
 from invoke import task
 
-from tasks.env import THIRD_PARTY_DIR, USABLE_CPUS
+from tasks.env import THIRD_PARTY_DIR, USABLE_CPUS, PROJ_ROOT
 
 LIBFFI_DIR = join(THIRD_PARTY_DIR, "libffi")
 
@@ -49,5 +49,9 @@ def build(ctx, clean=False):
     src_lib = join(LIBFFI_DIR, "wasm32-unknown-wasi", ".libs", "libffi.a")
     dest_lib = join(WASM_LIB_INSTALL, "libffi.a")
     print("Copying {} to {}".format(src_lib, dest_lib))
-    run("cp {} {}".format(src_lib, dest_lib), shell=True, check=True) 
+    run("cp {} {}".format(src_lib, dest_lib), shell=True, check=True)
 
+    # Copy imports into place
+    src_imports = join(PROJ_ROOT, "libffi.imports")
+    dest_imports = join(WASM_LIB_INSTALL, "libffi.imports")
+    run("cp {} {}".format(src_imports, dest_imports), check=True, shell=True)
