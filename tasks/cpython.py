@@ -87,6 +87,7 @@ def build(ctx, clean=False, noconf=False, nobuild=False):
             "--disable-ipv6",
             "--disable-shared",
             "--prefix={}".format(INSTALL_DIR),
+            "--with-system-ffi",
         ]
     )
 
