@@ -73,11 +73,8 @@ def build(ctx, clean=False, noconf=False, nobuild=False):
     # statically link all the C-extensions we need, therefore these are only
     # relevant in the module builds.
     #
-    cc_shared = [WASM_CC]
-    cc_shared.extend(WASM_CFLAGS_SHARED)
-
-    ldshared = [WASM_CC]
-    ldshared.extend(WASM_LDFLAGS_SHARED)
+    cc_shared = " ".join([WASM_CC] + WASM_CFLAGS_SHARED)
+    ldshared = " ".join([WASM_CC] + WASM_LDFLAGS_SHARED)
 
     # Link in extra wasi-libc long double support (see wasi-libc docs)
     link_libs = "-lc-printscan-long-double"
@@ -93,8 +90,8 @@ def build(ctx, clean=False, noconf=False, nobuild=False):
     configure_cmd.extend([
         'LIBS="{}"'.format(link_libs),
         "LD={}".format(WASM_CC),
-        'CCSHARED="{}"'.format(" ".join(cc_shared)),
-        'LDSHARED="{}"'.format(" ".join(ldshared)),
+        'CCSHARED="{}"'.format(cc_shared),
+        'LDSHARED="{}"'.format(ldshared),
         "--disable-ipv6",
         "--disable-shared",
         "--build={}".format(WASM_BUILD),
