@@ -3,8 +3,12 @@
 This build cross-compiles CPython and a number of Python modules to WebAssembly
 for use in [Faasm](https://github.com/faasm/faasm).
 
-You can see a list of the installed modules in the
-[`install_modules.sh`](scripts/install_modules.sh) script.
+You can try to install arbitrary packages, but the ones that definitely work 
+can be listed with:
+
+```bash
+inv libs.show
+```
 
 The build uses the [Faasm
 toolchain](https://github.com/faasm/faasm-toolchain) to cross-compile both 
@@ -44,14 +48,20 @@ compiling and the version on the build machine need to match _exactly_.
 To set up the relevant build machine python:
 
 ```
-cd ansible
-ansible-playbook python3_8.yml
+./bin/install_build_python.sh
 ```
 
 This will install Python at `/usr/local/faasm/python3.8`.
 
 When cross-compiling we _have_ to use this Python when running commands and
 scripts on the build machine (not any other Python that might be installed).
+
+### Upgrading Pip
+
+Do **not** upgrade Pip in the build machine copy of Python.
+
+The versions of Pip and Python for wasm and the build machine must match 
+exactly.
 
 ### Building CPython to WebAssembly
 
@@ -79,7 +89,7 @@ we use [crossenv](https://github.com/benfogle/crossenv).
 To set up crossenv:
 
 ```
-./scripts/crossenv_setup.sh
+./bin/crossenv_setup.sh
 ```
 
 You can then activate with:
@@ -91,7 +101,7 @@ You can then activate with:
 From inside the virtual environment, you can inspect the set-up with:
 
 ```
-python scripts/sanity_check.py | less
+python bin/sanity_check.py | less
 ```
 
 This will display the environment used to install Python modules (including the
@@ -105,18 +115,28 @@ environment:
 
 - Modify the CPython build (see `tasks.py`)
 - Rerun the CPython build (`inv cpython --clean`) 
-- Rebuild the crossenv (`./scripts/crossenv_setup.sh`) 
-- Enter the crossenv and inspect the environment with `scripts/sanity_check.py`
+- Rebuild the crossenv (`./bin/crossenv_setup.sh`) 
+- Enter the crossenv and inspect the environment with `bin/sanity_check.py`
 
 ## Modules
 
 With the crossenv activated, we can build modules with normal `pip`.
 
-To install all the modules, you can run:
+There is a wrapper script that will apply modifications if we know about them.
+To run this you must first have the cross-env activated as described above.
 
-```
-# NOTE: run this from a clean terminal, _not_ through the Faasm CLI
-./scripts/install_modules.sh
+```bash
+# Install all supported modules
+inv libs.install 
+
+# Install experimental modules
+inv libs.install --experimental
+
+# Install numpy
+inv libs.install --name numpy
+
+# (Attempt) to install arbitrary module
+inv libs.install --name <module_name>
 ```
 
 Libraries will then be installed to 
@@ -129,8 +149,52 @@ debugger.
 
 You can also set `DISTUTILS_DEBUG=1` to get distutils to print more info.
 
+## Experimental modules
+
+Some of the modules are experimental, these may require some extra set-up.
+
+### MXNet and Horovod
+
+To install the Python MXNet module we first need to cross-compile the MXNet
+shared library:
+
+```
+# Update all submodules
+cd third-party/mxnet
+git submodule update --init
+cd ../horovod
+git submodule update --init
+
+# Run our MXNet cross-compile (outside crossenv)
+cd ../..
+inv mxnet
+```
+
+Then we can install mxnet and horovod:
+
+```
+. ./cross_venv/bin/activate
+inv libs.install --name mxnet
+inv libs.install --name horovod
+```
+
+### Cleaning and uninstalling 
+
+```
+# Clean then rebuild
+inv mxnet --clean
+
+# Uninstall mxnet
+inv mxnet.uninstall
+```
+
 ## Running in Faasm
 
 See the [Faasm python
 docs](https://github.com/faasm/faasm/blob/master/docs/python.md).
+
+## BLAS and LAPACK
+
+Faasm's normal BLAS and LAPACK support using CLAPACK should be picked up by
+numpy due to the addition of the [site.cfg](../third-party/numpy/site.cfg).
 
