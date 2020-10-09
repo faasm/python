@@ -1,10 +1,8 @@
 import os
 
 from copy import copy
-from faasmcli.util.toolchain import (
-    CMAKE_TOOLCHAIN_FILE,
-    WASM_LIB_INSTALL,
-)
+from faasmcli.util.toolchain import WASM_LIB_INSTALL
+from faasmcli.util.env import FAASM_TOOLCHAIN_FILE
 from os.path import join
 from subprocess import run
 from tasks.env import USABLE_CPUS, THIRD_PARTY_DIR, CROSSENV_DIR
@@ -23,7 +21,7 @@ MODIFIED_LIBS_EXPERIMENTAL = {
     "horovod": {
         "env": {
             "MAKEFLAGS": "-j{}".format(USABLE_CPUS),
-            "HOROVOD_TOOLCHAIN_FILE": CMAKE_TOOLCHAIN_FILE,
+            "HOROVOD_TOOLCHAIN_FILE": FAASM_TOOLCHAIN_FILE,
             "HOROVOD_WITH_MXNET": "1",
             "HOROVOD_WITH_MPI": "1",
             "HOROVOD_WITH_TENSORFLOW": "0",

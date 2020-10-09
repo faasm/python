@@ -7,7 +7,9 @@ from os import makedirs
 import os
 
 from invoke import task
-from tasks.env import THIRD_PARTY_DIR, FAASM_SYSROOT, FAASM_TOOLCHAIN_FILE
+from faasmcli.util.env import FAASM_TOOLCHAIN_FILE
+from faasmcli.util.toolchain import WASM_SYSROOT
+from tasks.env import THIRD_PARTY_DIR
 
 MXNET_DIR = join(THIRD_PARTY_DIR, "mxnet")
 
@@ -20,11 +22,11 @@ INSTALLED_LIBS = [
 ]
 
 INSTALLED_HEADER_DIRS = [
-    join(FAASM_SYSROOT, "include", "mxnet"),
-    join(FAASM_SYSROOT, "include", "dmlc"),
+    join(WASM_SYSROOT, "include", "mxnet"),
+    join(WASM_SYSROOT, "include", "dmlc"),
 ]
 
-INSTALLED_LIBS_DIR = join(FAASM_SYSROOT, "lib", "wasm32-wasi")
+INSTALLED_LIBS_DIR = join(WASM_SYSROOT, "lib", "wasm32-wasi")
 
 
 @task
@@ -74,7 +76,7 @@ def install(ctx, clean=False, shared=True):
         "-DFAASM_BUILD_SHARED={}".format(shared_flag),
         "-DCMAKE_TOOLCHAIN_FILE={}".format(FAASM_TOOLCHAIN_FILE),
         "-DCMAKE_BUILD_TYPE=Release",
-        "-DCMAKE_INSTALL_PREFIX={}".format(FAASM_SYSROOT),
+        "-DCMAKE_INSTALL_PREFIX={}".format(WASM_SYSROOT),
         "-DCMAKE_INSTALL_LIBDIR=lib/wasm32-wasi",
         "-DCMAKE_DL_LIBS=",
         "-DUSE_CUDA=OFF",
