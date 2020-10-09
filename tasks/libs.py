@@ -1,23 +1,21 @@
 import os
 
 from copy import copy
+from faasmcli.util.toolchain import (
+    CMAKE_TOOLCHAIN_FILE,
+    WASM_LIB_INSTALL,
+)
 from os.path import join
 from subprocess import run
 from tasks.env import USABLE_CPUS, THIRD_PARTY_DIR, CROSSENV_DIR
 from invoke import task, Failure
 
-MXNET_LIB = "/usr/local/faasm/llvm-sysroot/lib/wasm32-wasi/libmxnet.so"
-CMAKE_TOOLCHAIN_FILE = (
-    "/usr/local/code/faasm/third-party/faasm-toolchain/WasiToolchain.cmake"
-)
+MXNET_LIB = join(WASM_LIB_INSTALL, "libmxnet.so")
 
 # Modified libs
 MODIFIED_LIBS = {
     "numpy": {
         "env": {"NPY_NUM_BUILD_JOBS": USABLE_CPUS},
-    },
-    "cffi": {
-
     },
 }
 

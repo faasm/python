@@ -1,7 +1,7 @@
 # Faasm CPython WebAssembly build
 
 This build cross-compiles CPython and a number of Python modules to WebAssembly
-for use in [Faasm](https://github.com/lsds/faasm).
+for use in [Faasm](https://github.com/faasm/faasm).
 
 You can try to install arbitrary packages, but the ones that definitely work 
 can be listed with:
@@ -136,7 +136,7 @@ inv libs.install --experimental
 inv libs.install --name numpy
 
 # (Attempt) to install arbitrary module
-inv libs.install <module_name>
+inv libs.install --name <module_name>
 ```
 
 Libraries will then be installed to 
@@ -174,8 +174,8 @@ Then we can install mxnet and horovod:
 
 ```
 . ./cross_venv/bin/activate
-inv libs.install --name=mxnet
-inv libs.install --name=horovod
+inv libs.install --name mxnet
+inv libs.install --name horovod
 ```
 
 ### Cleaning and uninstalling 
