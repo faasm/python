@@ -6,6 +6,7 @@ from . import (
     git,
     libs,
     mxnet,
+    runtime,
 )
 
 ns = Collection(
@@ -14,4 +15,5 @@ ns = Collection(
     git,
     libs,
     mxnet,
+    runtime,
 )

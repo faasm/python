@@ -21,12 +21,15 @@ RUN inv cpython
 # Set up crossenv
 RUN ./bin/crossenv_setup.sh
 
-# Build mxnet
-RUN inv mxnet
-
-# Build cpython
-RUN inv cpython
-
-# Cross-compile packages
+# Install cross-compiled python packages
 RUN . ./cross_venv/bin/activate && inv libs.install
-RUN . ./cross_venv/bin/activate && inv libs.install --experimental
+
+# TODO - enable these once the MXNet/ Horovod work is completed
+# Build mxnet
+# RUN inv mxnet
+
+# Install experimental pacakges
+# RUN . ./cross_venv/bin/activate && inv libs.install --experimental
+
+# Copy files into place
+RUN inv runtime
