@@ -16,7 +16,7 @@ jobs:
       - name: "Get tag version"
         run: echo "TAG_VERSION=${GITHUB_REF#refs/tags/v*}" >> $GITHUB_ENV
       - name: "Print tag version"
-        run: echo $TAG_VERSION
+        run: echo ${{ env.TAG_VERSION }}
       - name: "Set up QEMU"
         uses: docker/setup-qemu-action@v1
       - name: "Set up Docker Buildx"
@@ -33,4 +33,4 @@ jobs:
           push: true
           file: docker/cpython.dockerfile
           context: .
-          tags: faasm/cpython:$TAG_VERSION
+          tags: faasm/cpython:${{ env.TAG_VERSION }}
