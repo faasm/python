@@ -1,19 +1,24 @@
 FROM faasm/sysroot:0.0.7
 
 RUN apt install -y \
-    libssl-dev
+    libssl-dev \
+    ninja-build
 
-WORKDIR cpython
+WORKDIR /code/faasm-cpython
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
-
-COPY . .
-
-# Install build Python
+# Install build Python (careful with Docker cache here)
+COPY bin/install_build_python.sh bin/install_build_python.sh
 RUN ./bin/install_build_python.sh
 
-# Install crossenv
+# Add the rest of the code
+COPY . .
+
+# Build CPython
+RUN inv cpython
+
+# Set up crossenv
 RUN ./bin/crossenv_setup.sh
 
 # Build mxnet
