@@ -14,7 +14,7 @@ MODIFIED_LIBS = {
     "numpy": {
         "env": {"NPY_NUM_BUILD_JOBS": USABLE_CPUS},
     },
-    "pyfaasm": {}
+    "pyfaasm": {},
 }
 
 MODIFIED_LIBS_EXPERIMENTAL = {

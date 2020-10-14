@@ -15,4 +15,3 @@ def get_version():
         version = fh.read().strip()
 
     return version
-
