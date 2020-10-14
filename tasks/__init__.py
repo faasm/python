@@ -1,6 +1,7 @@
 from invoke import Collection
 
 from . import (
+    container,
     cpython,
     libs,
     mxnet,
@@ -8,6 +9,7 @@ from . import (
 )
 
 ns = Collection(
+    container,
     cpython,
     libs,
     mxnet,

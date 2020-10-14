@@ -1,7 +1,7 @@
 from os.path import join, exists
 from subprocess import run
 
-from faasmcli.util.toolchain import (
+from faasmtools.build import (
     build_config_cmd,
     run_autotools,
     WASM_SYSROOT,
