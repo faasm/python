@@ -1,7 +1,8 @@
 from invoke import task
 
-from faasmtools.env import get_version, PROJ_ROOT
+from faasmtools.env import get_version
 from faasmtools.git import tag_project
+from tasks.env import PROJ_ROOT
 
 
 @task
