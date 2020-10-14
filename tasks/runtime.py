@@ -7,7 +7,7 @@ from os import makedirs, remove
 
 from invoke import task
 
-from faasmtools import FAASM_LOCAL_DIR
+from faasmtools.build import FAASM_LOCAL_DIR
 
 from tasks.env import PROJ_ROOT, THIRD_PARTY_DIR
 
