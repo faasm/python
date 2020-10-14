@@ -14,7 +14,7 @@ jobs:
       - name: "Submodules"
         run: "git submodule update --init --recursive"
       - name: "Get tag version"
-        run: echo "TAG_VERSION=${GITHUB_REF#refs/v*/}" >> $GITHUB_ENV
+        run: echo "TAG_VERSION=${GITHUB_REF#refs/tags/v*/}" >> $GITHUB_ENV
       - name: "Print tag version"
         run: echo $TAG_VERSION
       - name: "Set up QEMU"
