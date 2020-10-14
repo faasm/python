@@ -7,9 +7,11 @@ from os import makedirs, remove
 
 from invoke import task
 
+from faasmtools import FAASM_LOCAL_DIR
+
 from tasks.env import PROJ_ROOT, THIRD_PARTY_DIR
 
-FAASM_RUNTIME_ROOT = "/usr/local/faasm/runtime_root"
+FAASM_RUNTIME_ROOT = join(FAASM_LOCAL_DIR, "runtime_root")
 CPYTHON_SRC = join(THIRD_PARTY_DIR, "cpython")
 CPYTHON_INSTALL_DIR = join(CPYTHON_SRC, "install", "wasm")
 CROSSENV_WASM_DIR = join(PROJ_ROOT, "cross_venv", "cross")
