@@ -16,7 +16,7 @@ DOCKERFILE = join(PROJ_ROOT, "docker", "cpython.dockerfile")
 
 
 def _get_tag():
-    tag_name = "{}:v{}".format(CONTAINER_IMAGE, get_version())
+    tag_name = "{}:{}".format(CONTAINER_IMAGE, get_version())
     return tag_name
 
 
