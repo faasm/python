@@ -31,6 +31,15 @@ CPython is built statically, some notes on this process can be found
 Several of the code changes to CPython and numpy were borrowed from 
 [pyodide](https://github.com/iodide-project/pyodide).
 
+## Releasing
+
+This repo gets built as a container, `faasm/cpython`. If you want to release a
+new version, you can:
+
+- Update the version in `VERSION`
+- Run `git.tag`
+- Let the Github action do the rest
+
 ## Set-up
 
 ### Submodules

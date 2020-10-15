@@ -7,8 +7,7 @@ from os import makedirs
 import os
 
 from invoke import task
-from faasmcli.util.env import FAASM_TOOLCHAIN_FILE
-from faasmcli.util.toolchain import WASM_SYSROOT
+from faasmtools.build import CMAKE_TOOLCHAIN_FILE, WASM_SYSROOT
 from tasks.env import THIRD_PARTY_DIR
 
 MXNET_DIR = join(THIRD_PARTY_DIR, "mxnet")
@@ -74,7 +73,7 @@ def install(ctx, clean=False, shared=True):
         "cmake",
         "-GNinja",
         "-DFAASM_BUILD_SHARED={}".format(shared_flag),
-        "-DCMAKE_TOOLCHAIN_FILE={}".format(FAASM_TOOLCHAIN_FILE),
+        "-DCMAKE_TOOLCHAIN_FILE={}".format(CMAKE_TOOLCHAIN_FILE),
         "-DCMAKE_BUILD_TYPE=Release",
         "-DCMAKE_INSTALL_PREFIX={}".format(WASM_SYSROOT),
         "-DCMAKE_INSTALL_LIBDIR=lib/wasm32-wasi",

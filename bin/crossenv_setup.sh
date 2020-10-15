@@ -11,9 +11,6 @@ BUILD_PYTHON_BIN=/usr/local/faasm/python3.8/bin
 BUILD_PYTHON=${BUILD_PYTHON_BIN}/python3.8
 BUILD_PIP=${BUILD_PYTHON_BIN}/pip3.8
 
-FAASM_DIR=/usr/local/code/faasm
-FAASMCLI=${FAASM_DIR}/faasmcli
-
 # Install the build machine python dependencies
 CROSSENV_SRC_DIR=${PROJ_ROOT}/third-party/crossenv
 echo "Installing crossenv from ${CROSSENV_SRC_DIR}"
@@ -26,11 +23,6 @@ ${BUILD_PIP} install cython
 
 echo "Installing invoke"
 ${BUILD_PIP} install invoke
-
-echo "Installing Faasmcli"
-pushd ${FAASMCLI} >> /dev/null
-${BUILD_PIP} install .
-popd >> /dev/null
 
 # Run the set-up script
 pushd ${PROJ_ROOT} >> /dev/null

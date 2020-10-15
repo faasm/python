@@ -5,16 +5,7 @@ from tasks.env import PROJ_ROOT, USABLE_CPUS
 from os.path import join, exists
 from subprocess import run
 
-from faasmcli.util.toolchain import (
-    WASM_CC,
-    WASM_BUILD,
-    WASM_HOST,
-    BASE_CONFIG_CMD,
-    BASE_CONFIG_FLAGS,
-    WASM_CFLAGS_SHARED,
-    WASM_LDFLAGS_SHARED,
-    build_config_cmd,
-)
+from faasmtools.build import build_config_cmd
 
 from invoke import task
 
