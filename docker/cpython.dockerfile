@@ -1,4 +1,4 @@
-FROM faasm/sysroot:0.0.9
+FROM faasm/sysroot:0.0.10
 
 RUN apt install -y \
     libssl-dev \
