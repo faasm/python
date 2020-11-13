@@ -54,6 +54,8 @@ This repo gets built as a container, `faasm/cpython`. If you want to release a
 new version, you can:
 
 - Update the version in `VERSION`
+- Commit to your branch
+- Check that the normal build works in CI
 - Run `git.tag`
 - Let the Github action do the rest
 
