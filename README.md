@@ -3,8 +3,25 @@
 This build cross-compiles CPython and a number of Python modules to WebAssembly
 for use in [Faasm](https://github.com/faasm/faasm).
 
-You can try to install arbitrary packages, but the ones that definitely work 
-can be listed with:
+## Set-up and development
+
+We recommend using Docker for developing this repo. You can build the container
+with:
+
+```bash
+docker build -t faasm/cpython:$(cat VERSION) -f docker/cpython.dockerfile .
+```
+
+Then develop with:
+
+```bash
+docker run -it \
+    -v $(pwd):/code/faasm-cpython \
+    faasm/cpython:$(cat VERSION) \
+    /bin/bash
+```
+
+Check things have worked with this (inside the container):
 
 ```bash
 inv libs.show
@@ -40,25 +57,17 @@ new version, you can:
 - Run `git.tag`
 - Let the Github action do the rest
 
-## Set-up
+## Set-up notes
 
-### Submodules
+We highly recommend using the containerised approach above. Everything
+discuessed below is already set up in the container environment, and these notes
+are only useful when debugging or upgrading parts of the build.
 
-Make sure all the repo's submodules are initialised:
+### CPython on the build machine/ container
 
-```
-git submodule update --init
-```
-
-### CPython on the build machine
-
-To cross-compile CPython and any C-extensions, the version you're cross
-compiling and the version on the build machine need to match _exactly_.
-To set up the relevant build machine python:
-
-```
-./bin/install_build_python.sh
-```
+To cross-compile CPython and C-extensions, we need a version of Python on the
+build machine that _exactly_ matches the version of CPython we're building.
+This is handled with the `install_build_python.sh` script.
 
 This will install Python at `/usr/local/faasm/python3.8`.
 
