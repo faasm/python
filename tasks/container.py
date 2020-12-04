@@ -12,7 +12,7 @@ from tasks.env import (
 )
 
 CONTAINER_IMAGE = "faasm/cpython"
-DOCKERFILE = join(PROJ_ROOT, "docker", "cpython.dockerfile")
+DOCKERFILE = join(PROJ_ROOT, "Dockerfile")
 
 
 def _get_tag():

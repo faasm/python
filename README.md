@@ -5,23 +5,13 @@ for use in [Faasm](https://github.com/faasm/faasm).
 
 ## Set-up and development
 
-We recommend using Docker for developing this repo. You can build the container
-with:
+We recommend using Docker for developing this repo. Start the container with:
 
-```bash
-docker build -t faasm/cpython:$(cat VERSION) -f docker/cpython.dockerfile .
+```
+./bin/cli.sh
 ```
 
-Then develop with:
-
-```bash
-docker run -it \
-    -v $(pwd):/code/faasm-cpython \
-    faasm/cpython:$(cat VERSION) \
-    /bin/bash
-```
-
-Check things have worked with this (inside the container):
+To show the list of available tasks (inside the container):
 
 ```bash
 inv libs.show
@@ -53,7 +43,7 @@ Several of the code changes to CPython and numpy were borrowed from
 This repo gets built as a container, `faasm/cpython`. If you want to release a
 new version, you can:
 
-- Update the version in `VERSION`
+- Update the version in `VERSION` and `.env`
 - Commit to your branch
 - Check that the normal build works in CI
 - Run `git.tag`
