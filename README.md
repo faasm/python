@@ -49,6 +49,24 @@ new version, you can:
 - Run `git.tag`
 - Let the Github action do the rest
 
+## PyFaasm
+
+[PyFaasm](pyfaasm/) is a small library which provides a Python shim for the
+[Faasm host interface](https://github.com/faasm/faasm/blob/master/docs/host_interface.md).
+This library is a wrapper around a C-extension that allows Python code to
+interact with the Faasm runtime.
+
+To build and test this natively using the Faasm emulator (from inside the
+development container):
+
+```bash
+# Build natively
+inv pyfaasm.native
+
+# Run tests
+inv pyfaasm.test
+```
+
 ## Set-up notes
 
 We highly recommend using the containerised approach above. Everything

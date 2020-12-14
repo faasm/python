@@ -9,6 +9,8 @@ CROSSENV_DIR = join(PROJ_ROOT, "cross_venv", "cross")
 USABLE_CPUS = str(int(cpu_count()) - 1)
 VERSION_FILE = join(PROJ_ROOT, "VERSION")
 
+FAASM_NATIVE_INSTALL = "/usr/local/faasm/native"
+
 
 def get_version():
     with open(VERSION_FILE) as fh:

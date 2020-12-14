@@ -5,7 +5,7 @@ services:
     image: redis
 
   cli:
-    image: ${FAASM_CPYTHON_CLI_IMAGE}
+    image: ${CPYTHON_CLI_IMAGE}
     volumes:
         - .:/code/faasm-cpython
     working_dir: /code/faasm-cpython
