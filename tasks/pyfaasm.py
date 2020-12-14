@@ -36,7 +36,6 @@ def test(ctx):
     shell_env = copy(environ)
     shell_env.update(
         {
-            "LD_LIBRARY_PATH": NATIVE_LIBS,
             "PYTHON_LOCAL_CHAINING": "1",
         }
     )

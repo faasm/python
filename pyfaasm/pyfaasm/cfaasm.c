@@ -1,4 +1,9 @@
 #define PY_SSIZE_T_CLEAN
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <Python.h>
 
 // Must make sure resulting wasm imports the Faasm interface funcs
@@ -346,3 +351,7 @@ PyMODINIT_FUNC
 PyInit_cfaasm(void) {
     return PyModule_Create(&cfaasmmodule);
 }
+
+#ifdef __cplusplus
+}
+#endif

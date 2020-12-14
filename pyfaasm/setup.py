@@ -23,6 +23,11 @@ FAASM_LIBS = [
 ]
 
 FAASM_INSTALL = "/usr/local/faasm/native"
+FAASM_INSTALL_LIB_DIR = join(FAASM_INSTALL, "lib")
+
+RUNTIME_LIBS = [
+    join(FAASM_INSTALL_LIB_DIR, "libpistache.so"),
+]
 
 
 def main():
@@ -43,8 +48,10 @@ def main():
         extension_kwargs.update(
             {
                 "libraries": FAASM_LIBS,
-                "library_dirs": [join(FAASM_INSTALL, "lib")],
+                "library_dirs": [FAASM_INSTALL_LIB_DIR],
                 "include_dirs": [join(FAASM_INSTALL, "include")],
+                "runtime_library_dirs": [FAASM_INSTALL_LIB_DIR],
+                "extra_objects": RUNTIME_LIBS,
             }
         )
 
