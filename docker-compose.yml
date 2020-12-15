@@ -7,7 +7,9 @@ services:
   cli:
     image: ${CPYTHON_CLI_IMAGE}
     volumes:
-        - .:/code/faasm-cpython
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
+      - .:/code/faasm-cpython
     working_dir: /code/faasm-cpython
     stdin_open: true
     tty: true
