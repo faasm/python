@@ -74,6 +74,7 @@ def read_state_size(key):
 
 
 def read_state(key, state_len):
+    state_len = int(state_len)
     buff = ctypes.create_string_buffer(state_len)
     _host_interface.__faasm_read_state(bytes(key, "utf-8"), buff, state_len)
 
@@ -81,6 +82,8 @@ def read_state(key, state_len):
 
 
 def read_state_offset(key, total_len, offset, offset_len):
+    total_len = int(total_len)
+    offset_len = int(offset_len)
     buff = ctypes.create_string_buffer(offset_len)
     _host_interface.__faasm_read_state_offset(
         bytes(key, "utf-8"), total_len, offset, buff, offset_len
@@ -94,6 +97,9 @@ def write_state(key, value):
 
 
 def write_state_offset(key, total_len, offset, value):
+    offset = int(offset)
+    total_len = int(total_len)
+
     _host_interface.__faasm_write_state_offset(
         bytes(key, "utf-8"), total_len, offset, value, len(value)
     )
@@ -108,6 +114,7 @@ def push_state_partial(key):
 
 
 def pull_state(key, state_len):
+    state_len = int(state_len)
     _host_interface.__faasm_pull_state(bytes(key, "utf-8"), state_len)
 
 
