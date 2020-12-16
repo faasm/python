@@ -31,6 +31,10 @@ jobs:
   build:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-20.04
+    env:
+      HOST_TYPE: ci
+      REDIS_QUEUE_HOST: redis
+      REDIS_STATE_HOST: redis
     container:
       image: faasm/cpython:0.0.8
     defaults:
