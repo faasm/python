@@ -30,14 +30,15 @@ def reconstruct_matrix_from_files(conf, file_dir, file_prefix):
 
 
 def do_subdivide_matrix(conf, mat, write_func):
-    # Step through rows and columns of original matrix, appending submatrix bytes
-    # to the overall byte stream
+    # Step through rows and columns of original matrix, appending submatrix
+    # bytes to the overall byte stream
     sm_per_row = conf.get_submatrices_per_row(conf.n_splits)
     sm_size = conf.get_submatrix_size(conf.n_splits)
 
     for row_idx in range(0, sm_per_row):
         for col_idx in range(0, sm_per_row):
-            # Work out the position of the top left and bottom right corner of the submatrix
+            # Work out the position of the top left and bottom right corner of
+            # the submatrix
             row_start = row_idx * sm_size
             col_start = col_idx * sm_size
 

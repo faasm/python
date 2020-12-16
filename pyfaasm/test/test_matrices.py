@@ -187,5 +187,6 @@ class TestMatrices(unittest.TestCase):
             self.conf.matrix_size, self.conf.matrix_size
         )
 
-        # Note that the floating point errors can creep up so we have a relatively high tolerance here
+        # Note that the floating point errors can creep up so we have a
+        # relatively high tolerance here
         np.testing.assert_array_almost_equal_nulp(actual, expected, nulp=20)
