@@ -36,6 +36,9 @@ jobs:
     defaults:
       run:
         working-directory: /code/faasm-cpython
+    services:
+      redis:
+        image: redis
     steps:
       - name: "Fetch ref"
         run: git fetch origin ${GITHUB_REF}:ci-branch
