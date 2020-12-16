@@ -1,7 +1,11 @@
-# Faasm CPython WebAssembly build
+# Faasm Python Environment [![Tests](https://github.com/faasm/faasm-cpython/workflows/Tests/badge.svg?branch=master)](https://github.com/faasm/faasm-cpython/actions)  [![License](https://img.shields.io/github/license/faasm/faasm-cpython.svg)](https://github.com/faasm/faasm-cpython/blob/master/LICENSE.md) 
 
 This build cross-compiles CPython and a number of Python modules to WebAssembly
 for use in [Faasm](https://github.com/faasm/faasm).
+
+It also provides a [small Python librar](pyfaasm/) which uses `ctypes` to
+support calls to the [Faasm host
+interface](https://github.com/faasm/faasm/blob/master/docs/host_interface.md).
 
 ## Set-up and development
 
@@ -50,11 +54,6 @@ new version, you can:
 - Let the Github action do the rest
 
 ## PyFaasm
-
-[PyFaasm](pyfaasm/) is a small library which provides a Python shim for the
-[Faasm host interface](https://github.com/faasm/faasm/blob/master/docs/host_interface.md).
-This library is a wrapper around a C-extension that allows Python code to
-interact with the Faasm runtime.
 
 To build and test this natively using the Faasm emulator (from inside the
 development container):
