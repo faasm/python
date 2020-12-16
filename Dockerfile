@@ -1,28 +1,25 @@
 FROM faasm/cpp-sysroot:0.0.16
+ARG FAASM_CPYTHON_VERSION
 
 RUN apt install -y \
     libssl-dev \
     ninja-build
 
-WORKDIR /tmp
-COPY requirements.txt .
-COPY pyfaasm/test_requirements.txt .
-RUN pip3 install -r requirements.txt
-RUN pip3 install -r test_requirements.txt
+# Clone current tag
+WORKDIR /code
+RUN git clone \
+    -b v${FAASM_CPYTHON_VERSION} \
+    https://github.com/faasm/faasm-cpython
 
-# Install build Python (careful with Docker cache here)
+# Install the build machine CPython
 WORKDIR /code/faasm-cpython
-COPY bin/install_build_python.sh bin/install_build_python.sh
 RUN ./bin/install_build_python.sh
-
-# Add the rest of the code
-COPY . .
 
 # Install pyfaasm natively
 WORKDIR /code/faasm-cpython/pyfaasm
 RUN pip3 install .
 
-# Build CPython
+# Build CPython to wasm
 WORKDIR /code/faasm-cpython
 RUN inv cpython
 
