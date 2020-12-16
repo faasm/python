@@ -5,22 +5,25 @@ RUN apt install -y \
     libssl-dev \
     ninja-build
 
+# Hack to avoid rebuilding build CPython every time the code changes
+WORKDIR /tmp
+COPY bin/install_build_python.sh .
+RUN ./install_build_python.sh
+
 # Clone current tag
 WORKDIR /code
 RUN git clone \
     -b v${FAASM_CPYTHON_VERSION} \
     https://github.com/faasm/faasm-cpython
 
-# Install the build machine CPython
+# Submodules
 WORKDIR /code/faasm-cpython
-RUN ./bin/install_build_python.sh
+RUN git submodule update --init
 
 # Install pyfaasm natively
-WORKDIR /code/faasm-cpython/pyfaasm
-RUN pip3 install .
+RUN inv pyfaasm.native
 
 # Build CPython to wasm
-WORKDIR /code/faasm-cpython
 RUN inv cpython
 
 # Set up crossenv
