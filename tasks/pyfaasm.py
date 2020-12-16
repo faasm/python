@@ -13,6 +13,8 @@ from invoke import task
 
 PYFAASM_DIR = join(PROJ_ROOT, "pyfaasm")
 NATIVE_LIBS = join(FAASM_NATIVE_INSTALL, "lib")
+USR_LOCAL_LIBS = "/usr/local/lib"
+LD_LIBRARY_PATH = "{}:{}".format(NATIVE_LIBS, USR_LOCAL_LIBS)
 
 
 @task
@@ -35,10 +37,17 @@ def test(ctx):
     Run pyfaasm tests natively
     """
     shell_env = copy(environ)
+    ld_path = shell_env.get("LD_LIBRARY_PATH")
+    ld_path = (
+        "{}:{}".format(LD_LIBRARY_PATH, ld_path)
+        if ld_path
+        else LD_LIBRARY_PATH
+    )
+
     shell_env.update(
         {
             "PYTHON_LOCAL_CHAINING": "1",
-            "LD_LIBRARY_PATH": NATIVE_LIBS,
+            "LD_LIBRARY_PATH": LD_LIBRARY_PATH,
         }
     )
 
