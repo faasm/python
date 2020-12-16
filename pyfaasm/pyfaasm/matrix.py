@@ -223,9 +223,7 @@ def chain_multiplications(conf, split_level, row_a, col_a, row_b, col_b):
         )
 
         call_ids.append(
-            chain(
-                distributed_divide_and_conquer, inputs_a.tobytes()
-            )
+            chain(distributed_divide_and_conquer, inputs_a.tobytes())
         )
 
     # Await completion
