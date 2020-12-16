@@ -1,14 +1,3 @@
-# NOTE - as part of the docker-build task we create custom dockerignore files on the fly
-# to change things for specific builds. See the docker/ directory for these templates
-
-# CLion
-cmake-build-debug
-cmake-build-release
-.idea
-
-# Builds
-build
-
 # Clang
 .clangd
 
@@ -16,17 +5,5 @@ build
 .git
 
 # Misc project files
-docker
 docs
-deploy/k8s
-node_modules
 venv
-container
-
-# Ignore all WebAssembly other than Python function, which has special status
-wasm
-!wasm/python/py_func/function.wasm
-
-# Benchmarking
-perf
-perf.*
