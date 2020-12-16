@@ -12,6 +12,7 @@ MATRIX_CONF_STATE_KEY = "matrix_state"
 # four pieces each time we do the divide in the divide and conquer.
 # The number of splits is how many times we're dividing the origin matrices.
 
+
 class MatrixConf(object):
     def __init__(self, matrix_size, n_splits):
         self.matrix_size = matrix_size
@@ -28,11 +29,16 @@ class MatrixConf(object):
         sm_size = self.get_submatrix_size(split_level)
         return sm_size * sm_size * NP_ELEMENT_SIZE
 
-    def get_intermediate_result_key(self, split_level, row_a, col_a, row_b, col_b):
-        key = "intermediate_{}_{}_{}_{}_{}".format(split_level, row_a, col_a, row_b, col_b)
+    def get_intermediate_result_key(
+        self, split_level, row_a, col_a, row_b, col_b
+    ):
+        key = "intermediate_{}_{}_{}_{}_{}".format(
+            split_level, row_a, col_a, row_b, col_b
+        )
         return key
 
     def get_submatrix_key(self, key_prefix, split_level, row_idx, col_idx):
-        full_key = "{}_{}_{}_{}".format(key_prefix, split_level, row_idx, col_idx)
+        full_key = "{}_{}_{}_{}".format(
+            key_prefix, split_level, row_idx, col_idx
+        )
         return full_key
-

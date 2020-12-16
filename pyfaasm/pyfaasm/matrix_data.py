@@ -5,7 +5,9 @@ import numpy as np
 
 def subdivide_matrix_into_files(conf, mat, file_dir, file_prefix):
     def _write_submatrix_to_file(sm_bytes, row_idx, col_idx):
-        file_name = conf.get_submatrix_key(file_prefix, conf.n_splits, row_idx, col_idx)
+        file_name = conf.get_submatrix_key(
+            file_prefix, conf.n_splits, row_idx, col_idx
+        )
         file_path = join(file_dir, file_name)
         with open(file_path, "wb") as fh:
             fh.write(sm_bytes)
@@ -15,7 +17,9 @@ def subdivide_matrix_into_files(conf, mat, file_dir, file_prefix):
 
 def reconstruct_matrix_from_files(conf, file_dir, file_prefix):
     def _read_submatrix_from_file(row_idx, col_idx):
-        file_name = conf.get_submatrix_key(file_prefix, conf.n_splits, row_idx, col_idx)
+        file_name = conf.get_submatrix_key(
+            file_prefix, conf.n_splits, row_idx, col_idx
+        )
         file_path = join(file_dir, file_name)
         with open(file_path, "rb") as fh:
             file_bytes = fh.read()

@@ -1,8 +1,13 @@
 import unittest
 from json import dumps
 
-from pyfaasm.core import set_local_input_output, \
-    set_emulator_message, get_output, set_output, PYTHON_LOCAL_OUTPUT
+from pyfaasm.core import (
+    set_local_input_output,
+    set_emulator_message,
+    get_output,
+    write_output,
+    PYTHON_LOCAL_OUTPUT,
+)
 
 
 class TestEmulator(unittest.TestCase):
@@ -35,21 +40,21 @@ class TestEmulator(unittest.TestCase):
         self.assertIsNone(get_output())
 
         # Set output and check
-        output_a = b'12345'
-        set_output(output_a)
+        output_a = b"12345"
+        write_output(output_a)
         self.assertEqual(get_output(), output_a)
 
         # Set output again and check updated
-        output_b = b'666777'
-        set_output(output_b)
+        output_b = b"666777"
+        write_output(output_b)
         self.assertEqual(get_output(), output_b)
 
     def test_changing_function_clears_local_output(self):
         set_local_input_output(True)
 
         # Set output and check
-        output_a = b'12345'
-        set_output(output_a)
+        output_a = b"12345"
+        write_output(output_a)
         self.assertEqual(get_output(), output_a)
 
         # Change function

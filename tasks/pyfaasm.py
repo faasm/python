@@ -20,8 +20,9 @@ def native(ctx):
     """
     Run native build of the pyfaasm library
     """
+    print("Installing pyfaasm in development mode")
     run(
-        "pip3 install .",
+        "pip3 install -e .",
         shell=True,
         check=True,
         cwd=PYFAASM_DIR,
@@ -37,6 +38,7 @@ def test(ctx):
     shell_env.update(
         {
             "PYTHON_LOCAL_CHAINING": "1",
+            "LD_LIBRARY_PATH": NATIVE_LIBS,
         }
     )
 

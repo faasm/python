@@ -1,12 +1,40 @@
 import os
+import ctypes
 
-import pyfaasm.cfaasm as cf
+# For a tutorial on ctypes, see here:
+# https://docs.python.org/3/library/ctypes.html
+#
+# Faasm host interface:
+# https://github.com/faasm/faasm/blob/master/include/faasm/host_interface.h
 
+HOST_INTERFACE_LIB = "libemulator.so"
+
+SUPPORTING_LIBS = [
+    "libpistache.so",
+    "libfaabricmpi.so",
+]
+
+HOST_INTERFACE_LIB = "libemulator.so"
 PYTHON_LOCAL_CHAINING = bool(os.environ.get("PYTHON_LOCAL_CHAINING"))
 PYTHON_LOCAL_OUTPUT = bool(os.environ.get("PYTHON_LOCAL_OUTPUT"))
 
 input_data = None
 output_data = None
+
+_host_interface = None
+
+
+def init_host_interface():
+    global _host_interface
+
+    if _host_interface is None:
+        # Load all supporting libs as globally linkable
+        for lib in SUPPORTING_LIBS:
+            ctypes.CDLL(lib, mode=ctypes.RTLD_GLOBAL)
+
+        # Load main Faasm host interface lib
+        _host_interface = ctypes.CDLL("libemulator.so")
+        print("Loaded Faasm host interface: {}".format(_host_interface))
 
 
 def set_local_chaining(value):
@@ -19,30 +47,16 @@ def set_local_input_output(value):
     PYTHON_LOCAL_OUTPUT = value
 
 
-def check_python_bindings():
-    # This should return a valid string
-    message = cf.hello_faasm()
-    print(message)
-
-    # Check the hard-coded dummy input
-    actual_input = cf.check_input()
-    expected_input = b'01234'
-    if type(actual_input == bytes) and actual_input == expected_input:
-        print("Got expected input {} (expected {})".format(actual_input, expected_input))
-    else:
-        print("Did not get expected input (expected {}, actual {})".format(expected_input, actual_input))
+def read_input():
+    return _host_interface.__faasm_read_input()
 
 
-def get_input():
-    return cf.faasm_get_input()
-
-
-def set_output(output):
+def write_output(output):
     if PYTHON_LOCAL_OUTPUT:
         global output_data
         output_data = output
     else:
-        cf.faasm_set_output(output)
+        _host_interface.__faasm_write_output(output)
 
 
 def get_output():
@@ -50,50 +64,64 @@ def get_output():
         global output_data
         return output_data
     else:
-        raise RuntimeError("Should not be getting output in non-local input/ output")
+        raise RuntimeError(
+            "Should not be getting output in non-local input/ output"
+        )
 
 
-def get_state_size(key):
-    return cf.faasm_get_state_size(key)
+def read_state_size(key):
+    return _host_interface.__faasm_read_state(bytes(key, "utf-8"), None, 0)
 
 
-def get_state(key, len):
-    return cf.faasm_get_state(key, len)
+def read_state(key, state_len):
+    buff = ctypes.create_string_buffer(state_len)
+    _host_interface.__faasm_read_state(bytes(key, "utf-8"), buff, state_len)
+
+    return bytes(buff)
 
 
-def get_state_offset(key, total_len, offset, offset_len):
-    return cf.faasm_get_state_offset(key, total_len, offset, offset_len)
+def read_state_offset(key, total_len, offset, offset_len):
+    buff = ctypes.create_string_buffer(offset_len)
+    _host_interface.__faasm_read_state_offset(
+        bytes(key, "utf-8"), total_len, offset, buff, offset_len
+    )
+
+    return bytes(buff)
 
 
-def set_state(key, value):
-    cf.faasm_set_state(key, value)
+def write_state(key, value):
+    _host_interface.__faasm_write_state(bytes(key, "utf-8"), value, len(value))
 
 
-def set_state_offset(key, total_len, offset, value):
-    cf.faasm_set_state_offset(key, total_len, offset, value)
+def write_state_offset(key, total_len, offset, value):
+    _host_interface.__faasm_write_state_offset(
+        bytes(key, "utf-8"), total_len, offset, value, len(value)
+    )
 
 
 def push_state(key):
-    cf.faasm_push_state(key)
+    _host_interface.__faasm_push_state(bytes(key, "utf-8"))
 
 
 def push_state_partial(key):
-    cf.faasm_push_state_partial(key)
+    _host_interface.__faasm_push_state_partial(bytes(key, "utf-8"))
 
 
 def pull_state(key, state_len):
-    cf.faasm_pull_state(key, state_len)
+    _host_interface.__faasm_pull_state(bytes(key, "utf-8"), state_len)
 
 
-def chain_this_with_input(func, chained_input_data):
+def chain(func, input_data):
     if PYTHON_LOCAL_CHAINING:
         # Run function directly
-        func(chained_input_data)
+        func(input_data)
         return 0
     else:
         # Call native
         func_name = func.__name__
-        return cf.faasm_chain_py(func_name, chained_input_data)
+        return _host_interface.__faasm_chain_py(
+            bytes(func_name, "utf-8"), input_data, len(input_data)
+        )
 
 
 def await_call(call_id):
@@ -102,20 +130,21 @@ def await_call(call_id):
         return 0
     else:
         # Call native
-        return cf.faasm_await_call(call_id)
+        return _host_interface.__faasm_await_call(call_id)
 
 
 def set_emulator_message(message_json):
+    message_bytes = bytes(message_json, "utf-8")
     if PYTHON_LOCAL_OUTPUT:
         global output_data
         output_data = None
 
-    return cf.set_emulator_message(message_json)
+    return _host_interface.setEmulatedMessageFromJson(message_bytes)
 
 
 def set_emulator_status(success):
-    cf.set_emulator_status(success)
+    _host_interface.__set_emulator_status(success)
 
 
 def get_emulator_async_response():
-    return cf.get_emulator_async_response()
+    return _host_interface.__get_emulator_async_response()

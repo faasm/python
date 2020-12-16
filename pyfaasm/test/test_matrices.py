@@ -9,16 +9,27 @@ import redis
 from parameterized import parameterized
 
 from pyfaasm.config import RESULT_MATRIX_KEY
-from pyfaasm.core import set_emulator_message, get_state, set_local_chaining
-from pyfaasm.matrix import subdivide_matrix_into_state, reconstruct_matrix_from_submatrices, \
-    read_input_submatrix, divide_and_conquer, write_matrix_params_to_state, \
-    load_matrix_conf_from_state, SUBMATRICES_KEY_A, SUBMATRICES_KEY_B, random_matrix
-from pyfaasm.matrix_data import subdivide_matrix_into_files, reconstruct_matrix_from_files
+from pyfaasm.core import set_emulator_message, read_state, set_local_chaining
+from pyfaasm.matrix import (
+    subdivide_matrix_into_state,
+    reconstruct_matrix_from_submatrices,
+    read_input_submatrix,
+    divide_and_conquer,
+    write_matrix_params_to_state,
+    load_matrix_conf_from_state,
+    SUBMATRICES_KEY_A,
+    SUBMATRICES_KEY_B,
+    random_matrix,
+)
+from pyfaasm.matrix_data import (
+    subdivide_matrix_into_files,
+    reconstruct_matrix_from_files,
+)
 
 
 class TestMatrices(unittest.TestCase):
     def setUp(self):
-        self.redis = redis.Redis()
+        self.redis = redis.Redis(host="redis")
         self.redis.flushall()
 
         self.key_a = "matrix_tester_a"
@@ -56,9 +67,14 @@ class TestMatrices(unittest.TestCase):
 
         np.testing.assert_array_equal(mat_a, actual)
 
-    @parameterized.expand([
-        (0,), (1,), (2,), (3,),
-    ])
+    @parameterized.expand(
+        [
+            (0,),
+            (1,),
+            (2,),
+            (3,),
+        ]
+    )
     def test_matrix_file_round_trip(self, split_level):
         self.set_up_conf(split_level)
 
@@ -76,15 +92,24 @@ class TestMatrices(unittest.TestCase):
         subdivide_matrix_into_files(self.conf, mat_a, file_dir, file_prefix_a)
         subdivide_matrix_into_files(self.conf, mat_b, file_dir, file_prefix_b)
 
-        actual_a = reconstruct_matrix_from_files(self.conf, file_dir, file_prefix_a)
-        actual_b = reconstruct_matrix_from_files(self.conf, file_dir, file_prefix_b)
+        actual_a = reconstruct_matrix_from_files(
+            self.conf, file_dir, file_prefix_a
+        )
+        actual_b = reconstruct_matrix_from_files(
+            self.conf, file_dir, file_prefix_b
+        )
 
         np.testing.assert_array_equal(mat_a, actual_a)
         np.testing.assert_array_equal(mat_b, actual_b)
 
-    @parameterized.expand([
-        (0,), (1,), (2,), (3,),
-    ])
+    @parameterized.expand(
+        [
+            (0,),
+            (1,),
+            (2,),
+            (3,),
+        ]
+    )
     def test_reading_submatrix_from_state(self, split_level):
         self.set_up_conf(split_level)
 
@@ -113,24 +138,33 @@ class TestMatrices(unittest.TestCase):
         row_start = row_idx * sm_size
         col_start = col_idx * sm_size
         expected_a = mat_a[
-                     row_start:row_start + sm_size,
-                     col_start:col_start + sm_size,
-                     ]
+            row_start : row_start + sm_size,
+            col_start : col_start + sm_size,
+        ]
 
         expected_b = mat_b[
-                     row_start:row_start + sm_size,
-                     col_start:col_start + sm_size,
-                     ]
+            row_start : row_start + sm_size,
+            col_start : col_start + sm_size,
+        ]
 
-        actual_a = read_input_submatrix(self.conf, self.key_a, row_idx, col_idx)
-        actual_b = read_input_submatrix(self.conf, self.key_b, row_idx, col_idx)
+        actual_a = read_input_submatrix(
+            self.conf, self.key_a, row_idx, col_idx
+        )
+        actual_b = read_input_submatrix(
+            self.conf, self.key_b, row_idx, col_idx
+        )
 
         np.testing.assert_array_equal(expected_a, actual_a)
         np.testing.assert_array_equal(expected_b, actual_b)
 
-    @parameterized.expand([
-        (0,), (1,), (2,), (3,),
-    ])
+    @parameterized.expand(
+        [
+            (0,),
+            (1,),
+            (2,),
+            (3,),
+        ]
+    )
     def test_distributed_multiplication(self, split_level):
         self.set_up_conf(split_level)
 
@@ -146,8 +180,12 @@ class TestMatrices(unittest.TestCase):
         divide_and_conquer()
 
         # Load the result
-        actual_bytes = get_state(RESULT_MATRIX_KEY, self.conf.bytes_per_matrix)
-        actual = np.frombuffer(actual_bytes, dtype=np.float32).reshape(self.conf.matrix_size, self.conf.matrix_size)
+        actual_bytes = read_state(
+            RESULT_MATRIX_KEY, self.conf.bytes_per_matrix
+        )
+        actual = np.frombuffer(actual_bytes, dtype=np.float32).reshape(
+            self.conf.matrix_size, self.conf.matrix_size
+        )
 
         # Note that the floating point errors can creep up so we have a relatively high tolerance here
         np.testing.assert_array_almost_equal_nulp(actual, expected, nulp=20)

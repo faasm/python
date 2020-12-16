@@ -4,9 +4,11 @@ RUN apt install -y \
     libssl-dev \
     ninja-build
 
-WORKDIR /code/faasm-cpython
+WORKDIR /tmp
 COPY requirements.txt .
+COPY pyfaasm/test_requirements.txt .
 RUN pip3 install -r requirements.txt
+RUN pip3 install -r test_requirements.txt
 
 # Install build Python (careful with Docker cache here)
 WORKDIR /code/faasm-cpython
