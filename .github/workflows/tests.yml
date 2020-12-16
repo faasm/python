@@ -28,7 +28,6 @@ jobs:
       - name: "Python formatting check"
         run: ./bin/check_python.sh
 
-jobs:
   build:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-20.04
