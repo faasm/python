@@ -1,7 +1,6 @@
 from pyfaasm.core import (
     read_state,
     read_state_offset,
-    init_host_interface,
     write_state,
     write_state_offset,
     push_state,
@@ -9,8 +8,6 @@ from pyfaasm.core import (
     set_emulator_message,
 )
 import json
-
-init_host_interface()
 
 msg = {
     "user": "demo",
