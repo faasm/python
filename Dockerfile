@@ -10,6 +10,12 @@ WORKDIR /tmp
 COPY bin/install_build_python.sh .
 RUN ./install_build_python.sh
 
+# Hack to avoid reinstalling Python libs every time
+COPY requirements.txt .
+COPY pyfaasm/test_requirements.txt .
+RUN pip3 install -r requirements.txt
+RUN pip3 install -r test_requirements.txt
+
 # Clone current tag
 WORKDIR /code
 RUN git clone \
@@ -19,6 +25,7 @@ RUN git clone \
 # Submodules
 WORKDIR /code/faasm-cpython
 RUN git submodule update --init
+
 
 # Install pyfaasm natively
 RUN inv pyfaasm.native
