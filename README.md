@@ -18,7 +18,7 @@ We recommend using Docker for developing this repo. Start the container with:
 To show the list of available tasks (inside the container):
 
 ```bash
-inv libs.show
+inv -l
 ```
 
 The build uses the [Faasm
@@ -50,7 +50,7 @@ new version, you can:
 - Update the version in `VERSION` and `.env`
 - Commit to your branch
 - Check that the normal build works in CI
-- Run `git.tag`
+- Run `inv git.tag`
 - Let the Github action do the rest
 
 ## PyFaasm
