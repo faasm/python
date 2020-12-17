@@ -1,0 +1,9 @@
+# Clang
+.clangd
+
+# Git
+.git
+
+# Misc project files
+docs
+venv

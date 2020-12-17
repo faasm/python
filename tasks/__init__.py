@@ -6,6 +6,7 @@ from . import (
     git,
     libs,
     mxnet,
+    pyfaasm,
     runtime,
 )
 
@@ -15,5 +16,6 @@ ns = Collection(
     git,
     libs,
     mxnet,
+    pyfaasm,
     runtime,
 )

@@ -4,7 +4,7 @@ from copy import copy
 from faasmtools.build import WASM_LIB_INSTALL, CMAKE_TOOLCHAIN_FILE
 from os.path import join
 from subprocess import run
-from tasks.env import USABLE_CPUS, THIRD_PARTY_DIR, CROSSENV_DIR
+from tasks.env import USABLE_CPUS, THIRD_PARTY_DIR, CROSSENV_DIR, PROJ_ROOT
 from invoke import task, Failure
 
 MXNET_LIB = join(WASM_LIB_INSTALL, "libmxnet.so")
@@ -14,7 +14,9 @@ MODIFIED_LIBS = {
     "numpy": {
         "env": {"NPY_NUM_BUILD_JOBS": USABLE_CPUS},
     },
-    "pyfaasm": {},
+    "pyfaasm": {
+        "dir": join(PROJ_ROOT, "pyfaasm"),
+    },
 }
 
 MODIFIED_LIBS_EXPERIMENTAL = {
@@ -31,7 +33,7 @@ MODIFIED_LIBS_EXPERIMENTAL = {
         "pip_cmd": "pip install .[mxnet]",
     },
     "mxnet": {
-        "subdir": "python",
+        "dir": join(THIRD_PARTY_DIR, "mxnet", "python"),
         "env": {"MXNET_LIBRARY_PATH": MXNET_LIB},
     },
 }
@@ -108,18 +110,14 @@ def install(ctx, name=None, experimental=False):
 
     # Install modified libs
     for lib_name, lib_def in modified_libs.items():
-        print("Installing modified lib {}".format(lib_name))
 
         shell_env = copy(os.environ)
-        if "env" in lib_def:
-            shell_env.update(lib_def["env"])
+        extra_env = lib_def.get("env", {})
+        shell_env.update(extra_env)
 
-        # Work out subdirectory
-        mod_dir = join(THIRD_PARTY_DIR, lib_name)
-        subdir = lib_def.get("subdir")
-        if subdir:
-            mod_dir = join(mod_dir, subdir)
-            print("Installing from subdir: {}".format(mod_dir))
+        # Work out install directory
+        mod_dir = lib_def.get("dir", join(THIRD_PARTY_DIR, lib_name))
+        print("Installing modified lib {} from {}".format(lib_name, mod_dir))
 
         # Execute the pip command
         pip_cmd = lib_def.get("pip_cmd", "pip install .")

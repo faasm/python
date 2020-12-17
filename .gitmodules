@@ -10,9 +10,6 @@
 	path = third-party/crossenv
     url = https://github.com/faasm/crossenv
     branch = faasm
-[submodule "third-party/pyfaasm"]
-	path = third-party/pyfaasm
-    url = https://github.com/faasm/pyfaasm.git
 [submodule "third-party/horovod"]
 	path = third-party/horovod
     url = https://github.com/faasm/horovod

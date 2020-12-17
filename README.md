@@ -1,13 +1,24 @@
-# Faasm CPython WebAssembly build
+# Faasm Python Environment [![Tests](https://github.com/faasm/faasm-cpython/workflows/Tests/badge.svg?branch=master)](https://github.com/faasm/faasm-cpython/actions)  [![License](https://img.shields.io/github/license/faasm/faasm-cpython.svg)](https://github.com/faasm/faasm-cpython/blob/master/LICENSE.md) 
 
 This build cross-compiles CPython and a number of Python modules to WebAssembly
 for use in [Faasm](https://github.com/faasm/faasm).
 
-You can try to install arbitrary packages, but the ones that definitely work 
-can be listed with:
+It also provides a [small Python librar](pyfaasm/) which uses `ctypes` to
+support calls to the [Faasm host
+interface](https://github.com/faasm/faasm/blob/master/docs/host_interface.md).
+
+## Set-up and development
+
+We recommend using Docker for developing this repo. Start the container with:
+
+```
+./bin/cli.sh
+```
+
+To show the list of available tasks (inside the container):
 
 ```bash
-inv libs.show
+inv -l
 ```
 
 The build uses the [Faasm
@@ -36,29 +47,36 @@ Several of the code changes to CPython and numpy were borrowed from
 This repo gets built as a container, `faasm/cpython`. If you want to release a
 new version, you can:
 
-- Update the version in `VERSION`
-- Run `git.tag`
+- Update the version in `VERSION` and `.env`
+- Commit to your branch
+- Check that the normal build works in CI
+- Run `inv git.tag`
 - Let the Github action do the rest
 
-## Set-up
+## PyFaasm
 
-### Submodules
+To build and test this natively using the Faasm emulator (from inside the
+development container):
 
-Make sure all the repo's submodules are initialised:
+```bash
+# Build natively
+inv pyfaasm.native
 
+# Run tests
+inv pyfaasm.test
 ```
-git submodule update --init
-```
 
-### CPython on the build machine
+## Set-up notes
 
-To cross-compile CPython and any C-extensions, the version you're cross
-compiling and the version on the build machine need to match _exactly_.
-To set up the relevant build machine python:
+We highly recommend using the containerised approach above. Everything
+discuessed below is already set up in the container environment, and these notes
+are only useful when debugging or upgrading parts of the build.
 
-```
-./bin/install_build_python.sh
-```
+### CPython on the build machine/ container
+
+To cross-compile CPython and C-extensions, we need a version of Python on the
+build machine that _exactly_ matches the version of CPython we're building.
+This is handled with the `install_build_python.sh` script.
 
 This will install Python at `/usr/local/faasm/python3.8`.
 
