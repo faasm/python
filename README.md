@@ -47,7 +47,7 @@ Several of the code changes to CPython and numpy were borrowed from
 This repo gets built as a container, `faasm/cpython`. If you want to release a
 new version, you can:
 
-- Update the version in `VERSION` and `.env`
+- Update the version in `VERSION`, `.github` and `.env`
 - Commit to your branch
 - Check that the normal build works in CI
 - Run `inv git.tag`
