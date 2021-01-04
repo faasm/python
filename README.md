@@ -3,7 +3,7 @@
 This build cross-compiles CPython and a number of Python modules to WebAssembly
 for use in [Faasm](https://github.com/faasm/faasm).
 
-It also provides a [small Python librar](pyfaasm/) which uses `ctypes` to
+It also provides a [small Python library](pyfaasm/) which uses `ctypes` to
 support calls to the [Faasm host
 interface](https://github.com/faasm/faasm/blob/master/docs/host_interface.md).
 
