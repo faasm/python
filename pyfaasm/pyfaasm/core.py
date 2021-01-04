@@ -33,7 +33,7 @@ def _init_host_interface():
             ctypes.CDLL(lib, mode=ctypes.RTLD_GLOBAL)
 
         # Load main Faasm host interface lib
-        _host_interface = ctypes.CDLL("libemulator.so")
+        _host_interface = ctypes.CDLL(HOST_INTERFACE_LIB)
         print("Loaded Faasm host interface: {}".format(_host_interface))
 
 
