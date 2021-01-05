@@ -7,14 +7,13 @@ import ctypes
 # Faasm host interface:
 # https://github.com/faasm/faasm/blob/master/include/faasm/host_interface.h
 
-HOST_INTERFACE_LIB = "libemulator.so"
-
-SUPPORTING_LIBS = [
+NATIVE_SUPPORTING_LIBS = [
     "libpistache.so",
     "libfaabricmpi.so",
 ]
 
-HOST_INTERFACE_LIB = "libemulator.so"
+NATIVE_INTERFACE_LIB = "libemulator.so"
+
 PYTHON_LOCAL_CHAINING = bool(os.environ.get("PYTHON_LOCAL_CHAINING"))
 PYTHON_LOCAL_OUTPUT = bool(os.environ.get("PYTHON_LOCAL_OUTPUT"))
 
@@ -29,11 +28,11 @@ def _init_host_interface():
 
     if _host_interface is None:
         # Load all supporting libs as globally linkable
-        for lib in SUPPORTING_LIBS:
+        for lib in NATIVE_SUPPORTING_LIBS:
             ctypes.CDLL(lib, mode=ctypes.RTLD_GLOBAL)
 
         # Load main Faasm host interface lib
-        _host_interface = ctypes.CDLL(HOST_INTERFACE_LIB)
+        _host_interface = ctypes.CDLL(NATIVE_INTERFACE_LIB)
         print("Loaded Faasm host interface: {}".format(_host_interface))
 
 
@@ -47,9 +46,16 @@ def set_local_input_output(value):
     PYTHON_LOCAL_OUTPUT = value
 
 
-def read_input():
+def get_input_len():
     _init_host_interface()
-    return _host_interface.__faasm_read_input()
+    return _host_interface.__faasm_read_input(None, 0)
+
+
+def read_input(input_len):
+    _init_host_interface()
+    input_len = int(input_len)
+    buff = ctypes.create_string_buffer(input_len)
+    return _host_interface.__faasm_read_input(buff, input_len)
 
 
 def write_output(output):
@@ -58,7 +64,7 @@ def write_output(output):
         output_data = output
     else:
         _init_host_interface()
-        _host_interface.__faasm_write_output(output)
+        _host_interface.__faasm_write_output(output, len(output))
 
 
 def get_output():
