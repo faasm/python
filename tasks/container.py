@@ -25,8 +25,17 @@ def build(ctx, nocache=False, push=False):
     """
     Build current version of the cpython container
     """
+    version = get_version()
+
     build_container(
-        _get_tag(), DOCKERFILE, PROJ_ROOT, nocache=nocache, push=push
+        _get_tag(),
+        DOCKERFILE,
+        PROJ_ROOT,
+        nocache=nocache,
+        push=push,
+        build_args={
+            "FAASM_CPYTHON_VERSION": version,
+        },
     )
 
 
