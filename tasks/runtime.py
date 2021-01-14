@@ -16,6 +16,19 @@ CPYTHON_SRC = join(THIRD_PARTY_DIR, "cpython")
 CPYTHON_INSTALL_DIR = join(CPYTHON_SRC, "install", "wasm")
 CROSSENV_WASM_DIR = join(PROJ_ROOT, "cross_venv", "cross")
 
+INCLUDE_ROOT = join(FAASM_RUNTIME_ROOT, "include")
+LIB_ROOT = join(FAASM_RUNTIME_ROOT, "lib")
+
+INCLUDE_SRC_DIR = join(CPYTHON_INSTALL_DIR, "include", "python3.8")
+LIB_SRC_DIR = join(CPYTHON_INSTALL_DIR, "lib", "python3.8")
+SITE_PACKAGES_SRC_DIR = join(
+    CROSSENV_WASM_DIR, "lib", "python3.8", "site-packages"
+)
+
+INCLUDE_DEST_DIR = join(INCLUDE_ROOT, "python3.8")
+LIB_DEST_DIR = join(LIB_ROOT, "python3.8")
+SITE_PACKAGES_DEST_DIR = join(LIB_DEST_DIR, "site-packages")
+
 
 def _glob_remove(glob_pattern, recursive=False, directory=False):
     print("Recursive remove: {}".format(glob_pattern))
@@ -35,67 +48,59 @@ def _clear_pyc_files(dir_path):
     _glob_remove(pycache_glob, recursive=True, directory=True)
 
 
+@task
+def cpython(ctx):
+    # Remove dirs to be replaced by those we copy in
+    if exists(INCLUDE_DEST_DIR):
+        print("Removing {}".format(INCLUDE_DEST_DIR))
+        rmtree(INCLUDE_DEST_DIR)
+
+    if exists(LIB_DEST_DIR):
+        print("Removing {}".format(LIB_DEST_DIR))
+        rmtree(LIB_DEST_DIR)
+
+    # Copy CPython includes
+    print("Copying {} to {}".format(INCLUDE_SRC_DIR, INCLUDE_DEST_DIR))
+    copytree(INCLUDE_SRC_DIR, INCLUDE_DEST_DIR)
+
+    # Copy CPython libs
+    print("Copying {} to {}".format(LIB_SRC_DIR, LIB_DEST_DIR))
+    copytree(LIB_SRC_DIR, LIB_DEST_DIR)
+
+
 @task(default=True)
 def copy(ctx):
     """
     Copies the CPython archive and all installed modules from the cpython build
     into the Faasm runtime root
     """
+    if not exists(LIB_ROOT):
+        print("Creating {}".format(LIB_ROOT))
+        makedirs(LIB_ROOT)
 
-    include_root = join(FAASM_RUNTIME_ROOT, "include")
-    lib_root = join(FAASM_RUNTIME_ROOT, "lib")
-
-    if not exists(lib_root):
-        print("Creating {}".format(lib_root))
-        makedirs(lib_root)
-
-    if not exists(include_root):
-        print("Creating {}".format(include_root))
-        makedirs(include_root)
-
-    include_src_dir = join(CPYTHON_INSTALL_DIR, "include", "python3.8")
-    lib_src_dir = join(CPYTHON_INSTALL_DIR, "lib", "python3.8")
-    site_packages_src_dir = join(
-        CROSSENV_WASM_DIR, "lib", "python3.8", "site-packages"
-    )
-
-    include_dest_dir = join(include_root, "python3.8")
-    lib_dest_dir = join(lib_root, "python3.8")
-    site_packages_dest_dir = join(lib_dest_dir, "site-packages")
+    if not exists(INCLUDE_ROOT):
+        print("Creating {}".format(INCLUDE_ROOT))
+        makedirs(INCLUDE_ROOT)
 
     # Clear out pyc files
     print("Clearing out pyc files")
-    _clear_pyc_files(lib_src_dir)
-    _clear_pyc_files(site_packages_src_dir)
+    _clear_pyc_files(LIB_SRC_DIR)
+    _clear_pyc_files(SITE_PACKAGES_SRC_DIR)
 
-    # Remove dirs to be replaced by those we copy in
-    if exists(include_dest_dir):
-        print("Removing {}".format(include_dest_dir))
-        rmtree(include_dest_dir)
-
-    if exists(lib_dest_dir):
-        print("Removing {}".format(lib_dest_dir))
-        rmtree(lib_dest_dir)
-
-    # Copy CPython includes
-    print("Copying {} to {}".format(include_src_dir, include_dest_dir))
-    copytree(include_src_dir, include_dest_dir)
-
-    # Copy CPython libs
-    print("Copying {} to {}".format(lib_src_dir, lib_dest_dir))
-    copytree(lib_src_dir, lib_dest_dir)
+    # Copy CPython
+    cpython()
 
     # Copy cross-compiled modules
-    if not exists(site_packages_dest_dir):
-        makedirs(site_packages_dest_dir)
+    if not exists(SITE_PACKAGES_DEST_DIR):
+        makedirs(SITE_PACKAGES_DEST_DIR)
 
     print(
         "Copying {} to {}".format(
-            site_packages_src_dir, site_packages_dest_dir
+            SITE_PACKAGES_SRC_DIR, SITE_PACKAGES_DEST_DIR
         )
     )
     run(
-        "cp -r {}/* {}/".format(site_packages_src_dir, site_packages_dest_dir),
+        "cp -r {}/* {}/".format(SITE_PACKAGES_SRC_DIR, SITE_PACKAGES_DEST_DIR),
         shell=True,
         check=True,
     )
