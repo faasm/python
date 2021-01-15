@@ -1,11 +1,12 @@
 import os
+import shutil
 
 from copy import copy
 from tasks.env import PROJ_ROOT, USABLE_CPUS
 from os.path import join, exists
 from subprocess import run
 
-from faasmtools.build import build_config_cmd
+from faasmtools.build import build_config_cmd, WASM_LIB_INSTALL, WASM_SYSROOT
 
 from invoke import task
 
@@ -38,6 +39,14 @@ ENV_VARS.update(
         "PATH": PATH_ENV_VAR,
     }
 )
+
+WASM_INCLUDES_DIR = join(WASM_SYSROOT, "include")
+
+LIB_SRC_PATH = join(INSTALL_DIR, "lib", "libpython3.8.a")
+LIB_DEST_PATH = join(WASM_LIB_INSTALL, "libpython3.8.a")
+
+INCLUDE_SRC_DIR = join(INSTALL_DIR, "include", "python3.8")
+INCLUDE_DEST_DIR = join(WASM_INCLUDES_DIR, "python3.8")
 
 # See the CPython docs for more info:
 # - General: https://devguide.python.org/setup/#compile-and-build
@@ -100,3 +109,20 @@ def build(ctx, clean=False, noconf=False, nobuild=False):
     # Run specific install tasks (see cpython/Makefile)
     _run_cpython_cmd("commoninstall", ["make", "commoninstall"])
     _run_cpython_cmd("bininstall", ["make", "bininstall"])
+
+    # Prepare destinations
+    os.makedirs(WASM_INCLUDES_DIR, exist_ok=True)
+    os.makedirs(WASM_LIB_INSTALL, exist_ok=True)
+
+    os.remove(LIB_DEST_PATH)
+    shutil.rmtree(INCLUDE_DEST_DIR, ignore_errors=True)
+
+    print("Copying lib from {} to {}".format(LIB_SRC_PATH, LIB_DEST_PATH))
+    print(
+        "Copying includes from {} to {}".format(
+            INCLUDE_SRC_DIR, INCLUDE_DEST_DIR
+        )
+    )
+
+    shutil.copy(LIB_SRC_PATH, LIB_DEST_PATH)
+    shutil.copytree(INCLUDE_SRC_DIR, INCLUDE_DEST_DIR)
