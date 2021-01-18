@@ -75,7 +75,7 @@ def build(ctx, clean=False, noconf=False, nobuild=False):
     # relevant in the module builds.
 
     # Link in extra wasi-libc long double support (see wasi-libc docs)
-    link_libs = "-lc-printscan-long-double"
+    link_libs = "-lc-printscan-long-double -lfaasm"
 
     # Configure
     configure_cmd = build_config_cmd(
