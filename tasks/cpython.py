@@ -2,7 +2,7 @@ import os
 import shutil
 
 from copy import copy
-from tasks.env import PROJ_ROOT, USABLE_CPUS
+from tasks.env import PROJ_ROOT, USABLE_CPUS, FAASM_RUNTIME_ROOT
 from os.path import join, exists
 from subprocess import run
 
@@ -42,8 +42,11 @@ ENV_VARS.update(
 
 WASM_INCLUDES_DIR = join(WASM_SYSROOT, "include")
 
-LIB_SRC_PATH = join(INSTALL_DIR, "lib", "libpython3.8.a")
-LIB_DEST_PATH = join(WASM_LIB_INSTALL, "libpython3.8.a")
+LIB_SRC_DIR = join(INSTALL_DIR, "lib")
+LIB_DEST_DIR = join(FAASM_RUNTIME_ROOT, "lib")
+
+LIBPYTHON_SRC_PATH = join(LIB_SRC_DIR, "libpython3.8.a")
+LIBPYTHON_DEST_PATH = join(WASM_LIB_INSTALL, "libpython3.8.a")
 
 INCLUDE_SRC_DIR = join(INSTALL_DIR, "include", "python3.8")
 INCLUDE_DEST_DIR = join(WASM_INCLUDES_DIR, "python3.8")
@@ -114,15 +117,25 @@ def build(ctx, clean=False, noconf=False, nobuild=False):
     os.makedirs(WASM_INCLUDES_DIR, exist_ok=True)
     os.makedirs(WASM_LIB_INSTALL, exist_ok=True)
 
-    os.remove(LIB_DEST_PATH)
     shutil.rmtree(INCLUDE_DEST_DIR, ignore_errors=True)
 
-    print("Copying lib from {} to {}".format(LIB_SRC_PATH, LIB_DEST_PATH))
+    print(
+        "Copying libpython from {} to {}".format(
+            LIBPYTHON_SRC_PATH, LIBPYTHON_DEST_PATH
+        )
+    )
     print(
         "Copying includes from {} to {}".format(
             INCLUDE_SRC_DIR, INCLUDE_DEST_DIR
         )
     )
 
-    shutil.copy(LIB_SRC_PATH, LIB_DEST_PATH)
+    shutil.copy(LIBPYTHON_SRC_PATH, LIBPYTHON_DEST_PATH)
     shutil.copytree(INCLUDE_SRC_DIR, INCLUDE_DEST_DIR)
+
+    print("Copying contents of {} to {}".format(LIB_SRC_DIR, LIB_DEST_DIR))
+    run(
+        "cp -r {}/* {}/".format(LIB_SRC_DIR, LIB_DEST_DIR),
+        shell=True,
+        check=True,
+    )
