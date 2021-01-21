@@ -14,8 +14,6 @@ NATIVE_SUPPORTING_LIBS = [
 
 NATIVE_INTERFACE_LIB = "libemulator.so"
 
-WASM_INTERFACE_LIB = "libfaasmshim.so"
-
 env_cache = dict()
 
 input_data = None
@@ -65,7 +63,8 @@ def _init_host_interface():
     if _host_interface is None:
         # Wasm and native environments are different
         if is_wasm():
-            _host_interface = ctypes.CDLL(WASM_INTERFACE_LIB)
+            # Wasm expects the main application to handle the relevant calls
+            _host_interface = ctypes.CDLL(None)
         else:
             # Load all supporting libs as globally linkable
             for lib in NATIVE_SUPPORTING_LIBS:
