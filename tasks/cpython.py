@@ -133,6 +133,8 @@ def build(ctx, clean=False, noconf=False, nobuild=False):
     shutil.copy(LIBPYTHON_SRC_PATH, LIBPYTHON_DEST_PATH)
     shutil.copytree(INCLUDE_SRC_DIR, INCLUDE_DEST_DIR)
 
+    os.makedirs(LIB_DEST_DIR, exist_ok=True)
+
     print("Copying contents of {} to {}".format(LIB_SRC_DIR, LIB_DEST_DIR))
     run(
         "cp -r {}/* {}/".format(LIB_SRC_DIR, LIB_DEST_DIR),
