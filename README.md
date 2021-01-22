@@ -3,7 +3,7 @@
 This build cross-compiles CPython and a number of Python modules to WebAssembly
 for use in [Faasm](https://github.com/faasm/faasm).
 
-It also provides a [small Python librar](pyfaasm/) which uses `ctypes` to
+It also provides a [small Python library](pyfaasm/) which uses `ctypes` to
 support calls to the [Faasm host
 interface](https://github.com/faasm/faasm/blob/master/docs/host_interface.md).
 
@@ -47,7 +47,7 @@ Several of the code changes to CPython and numpy were borrowed from
 This repo gets built as a container, `faasm/cpython`. If you want to release a
 new version, you can:
 
-- Update the version in `VERSION` and `.env`
+- Update the version in `VERSION`, `.github` and `.env`
 - Commit to your branch
 - Check that the normal build works in CI
 - Run `inv git.tag`

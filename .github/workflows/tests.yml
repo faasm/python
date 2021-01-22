@@ -12,7 +12,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-20.04
     container:
-      image: faasm/cpython:0.0.8
+      image: faasm/cpython:0.0.9
     defaults:
       run:
         working-directory: /code/faasm-cpython
@@ -36,7 +36,7 @@ jobs:
       REDIS_QUEUE_HOST: redis
       REDIS_STATE_HOST: redis
     container:
-      image: faasm/cpython:0.0.8
+      image: faasm/cpython:0.0.9
     defaults:
       run:
         working-directory: /code/faasm-cpython

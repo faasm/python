@@ -1,20 +1,25 @@
 import glob
 
 from os.path import join, exists
-from shutil import rmtree, copytree
+from shutil import rmtree
 from subprocess import run
 from os import makedirs, remove
 
 from invoke import task
 
-from faasmtools.build import FAASM_LOCAL_DIR
+from tasks.env import PROJ_ROOT, THIRD_PARTY_DIR, FAASM_RUNTIME_ROOT
 
-from tasks.env import PROJ_ROOT, THIRD_PARTY_DIR
-
-FAASM_RUNTIME_ROOT = join(FAASM_LOCAL_DIR, "runtime_root")
 CPYTHON_SRC = join(THIRD_PARTY_DIR, "cpython")
 CPYTHON_INSTALL_DIR = join(CPYTHON_SRC, "install", "wasm")
 CROSSENV_WASM_DIR = join(PROJ_ROOT, "cross_venv", "cross")
+
+LIB_SRC_DIR = join(CPYTHON_INSTALL_DIR, "lib", "python3.8")
+LIB_DEST_DIR = join(FAASM_RUNTIME_ROOT, "lib", "python3.8")
+
+SITE_PACKAGES_SRC_DIR = join(
+    CROSSENV_WASM_DIR, "lib", "python3.8", "site-packages"
+)
+SITE_PACKAGES_DEST_DIR = join(LIB_DEST_DIR, "site-packages")
 
 
 def _glob_remove(glob_pattern, recursive=False, directory=False):
@@ -38,64 +43,24 @@ def _clear_pyc_files(dir_path):
 @task(default=True)
 def copy(ctx):
     """
-    Copies the CPython archive and all installed modules from the cpython build
-    into the Faasm runtime root
+    Copies the installed modules into the Faasm runtime root
     """
-
-    include_root = join(FAASM_RUNTIME_ROOT, "include")
-    lib_root = join(FAASM_RUNTIME_ROOT, "lib")
-
-    if not exists(lib_root):
-        print("Creating {}".format(lib_root))
-        makedirs(lib_root)
-
-    if not exists(include_root):
-        print("Creating {}".format(include_root))
-        makedirs(include_root)
-
-    include_src_dir = join(CPYTHON_INSTALL_DIR, "include", "python3.8")
-    lib_src_dir = join(CPYTHON_INSTALL_DIR, "lib", "python3.8")
-    site_packages_src_dir = join(
-        CROSSENV_WASM_DIR, "lib", "python3.8", "site-packages"
-    )
-
-    include_dest_dir = join(include_root, "python3.8")
-    lib_dest_dir = join(lib_root, "python3.8")
-    site_packages_dest_dir = join(lib_dest_dir, "site-packages")
-
     # Clear out pyc files
     print("Clearing out pyc files")
-    _clear_pyc_files(lib_src_dir)
-    _clear_pyc_files(site_packages_src_dir)
-
-    # Remove dirs to be replaced by those we copy in
-    if exists(include_dest_dir):
-        print("Removing {}".format(include_dest_dir))
-        rmtree(include_dest_dir)
-
-    if exists(lib_dest_dir):
-        print("Removing {}".format(lib_dest_dir))
-        rmtree(lib_dest_dir)
-
-    # Copy CPython includes
-    print("Copying {} to {}".format(include_src_dir, include_dest_dir))
-    copytree(include_src_dir, include_dest_dir)
-
-    # Copy CPython libs
-    print("Copying {} to {}".format(lib_src_dir, lib_dest_dir))
-    copytree(lib_src_dir, lib_dest_dir)
+    _clear_pyc_files(LIB_SRC_DIR)
+    _clear_pyc_files(SITE_PACKAGES_SRC_DIR)
 
     # Copy cross-compiled modules
-    if not exists(site_packages_dest_dir):
-        makedirs(site_packages_dest_dir)
+    if not exists(SITE_PACKAGES_DEST_DIR):
+        makedirs(SITE_PACKAGES_DEST_DIR)
 
     print(
         "Copying {} to {}".format(
-            site_packages_src_dir, site_packages_dest_dir
+            SITE_PACKAGES_SRC_DIR, SITE_PACKAGES_DEST_DIR
         )
     )
     run(
-        "cp -r {}/* {}/".format(site_packages_src_dir, site_packages_dest_dir),
+        "cp -r {}/* {}/".format(SITE_PACKAGES_SRC_DIR, SITE_PACKAGES_DEST_DIR),
         shell=True,
         check=True,
     )

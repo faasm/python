@@ -6,7 +6,7 @@ from pyfaasm.core import (
     set_emulator_message,
     get_output,
     write_output,
-    PYTHON_LOCAL_OUTPUT,
+    is_local_output,
 )
 
 
@@ -16,7 +16,7 @@ class TestEmulator(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Check what local output already set to
-        cls.original_local_output = PYTHON_LOCAL_OUTPUT
+        cls.original_local_output = is_local_output()
 
     @classmethod
     def tearDownClass(cls):
