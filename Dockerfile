@@ -32,18 +32,15 @@ RUN inv pyfaasm.native
 # Build CPython to wasm
 RUN inv cpython
 
+# Build mxnet
+RUN inv mxnet
+
 # Set up crossenv
 RUN ./bin/crossenv_setup.sh
 
 # Install cross-compiled python packages
 RUN . ./cross_venv/bin/activate && inv libs.install
 
-# TODO - enable these once the MXNet/ Horovod work is completed
-# Build mxnet
-# RUN inv mxnet
-
 # Install experimental pacakges
-# RUN . ./cross_venv/bin/activate && inv libs.install --experimental
+RUN . ./cross_venv/bin/activate && inv libs.install --experimental
 
-# Copy files into place
-RUN inv runtime

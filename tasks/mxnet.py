@@ -101,19 +101,11 @@ def install(ctx, clean=False, shared=True):
     cmake_str = " ".join(cmake_cmd)
     print(cmake_str)
 
-    print("RUNNING CMAKE")
-    res = run(cmake_str, shell=True, cwd=work_dir, env=env_vars)
-    if res.returncode != 0:
-        raise RuntimeError(
-            "MXNet CMake config failed ({})".format(res.returncode)
-        )
+    print("\n--------------------\nMXNET CMAKE\n-------------------\n")
+    run(cmake_str, shell=True, check=True, cwd=work_dir, env=env_vars)
 
-    print("RUNNING NINJA")
-    res = run("ninja -v mxnet", shell=True, cwd=work_dir, env=env_vars)
-    if res.returncode != 0:
-        raise RuntimeError("MXNet build failed ({})".format(res.returncode))
+    print("\n--------------------\nMXNET NINJA\n-------------------\n")
+    run("ninja -v mxnet", shell=True, check=True, cwd=work_dir, env=env_vars)
 
-    print("RUNNING INSTALL")
-    res = run("ninja install", shell=True, cwd=work_dir)
-    if res.returncode != 0:
-        raise RuntimeError("MXNet install failed ({})".format(res.returncode))
+    print("\n--------------------\nMXNET INSTALL\n-------------------\n")
+    run("ninja install", shell=True, check=True, cwd=work_dir)

@@ -7,7 +7,6 @@ from . import (
     libs,
     mxnet,
     pyfaasm,
-    runtime,
 )
 
 ns = Collection(
@@ -17,5 +16,4 @@ ns = Collection(
     libs,
     mxnet,
     pyfaasm,
-    runtime,
 )

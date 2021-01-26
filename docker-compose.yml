@@ -10,6 +10,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker
       - .:/code/faasm-cpython
+      - /home/scs17/faasm-local/runtime_root:/usr/local/faasm/runtime_root
     working_dir: /code/faasm-cpython
     stdin_open: true
     tty: true
