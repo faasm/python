@@ -21,3 +21,11 @@ class TestInputs(unittest.TestCase):
         actual = actual_bytes.decode("utf-8")
 
         self.assertEqual(actual, expected)
+
+    def test_empty_input_data(self):
+        msg = {"user": "foo", "function": "bar"}
+
+        set_emulator_message(json.dumps(msg))
+
+        input_len = get_input_len()
+        self.assertEqual(input_len, 0)
