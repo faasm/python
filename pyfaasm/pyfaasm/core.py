@@ -83,7 +83,9 @@ def read_input(input_len):
     _init_host_interface()
     input_len = int(input_len)
     buff = ctypes.create_string_buffer(input_len)
-    return _host_interface.__faasm_read_input(buff, input_len)
+    _host_interface.__faasm_read_input(buff, input_len)
+
+    return buff.value
 
 
 def write_output(output):
