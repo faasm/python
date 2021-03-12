@@ -31,7 +31,7 @@ def build(ctx, nocache=False, push=False):
         PROJ_ROOT,
         nocache=nocache,
         push=push,
-        build_args={"FAASM_CPYTHON_VERSION": get_version()},
+        build_args={"FAASM_PYTHON_VERSION": get_version()},
     )
 
 

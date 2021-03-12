@@ -1,4 +1,4 @@
-# Faasm Python Environment [![Tests](https://github.com/faasm/faasm-cpython/workflows/Tests/badge.svg?branch=master)](https://github.com/faasm/faasm-cpython/actions)  [![License](https://img.shields.io/github/license/faasm/faasm-cpython.svg)](https://github.com/faasm/faasm-cpython/blob/master/LICENSE.md) 
+# Faasm Python Environment [![Tests](https://github.com/faasm/python/workflows/Tests/badge.svg?branch=master)](https://github.com/faasm/python/actions)  [![License](https://img.shields.io/github/license/faasm/python.svg)](https://github.com/faasm/python/blob/master/LICENSE.md) 
 
 This build cross-compiles CPython and a number of Python modules to WebAssembly
 for use in [Faasm](https://github.com/faasm/faasm).
@@ -47,7 +47,7 @@ Several of the code changes to CPython and numpy were borrowed from
 This repo gets built as a container, `faasm/cpython`. If you want to release a
 new version, you can:
 
-- Update the version in `VERSION`, `.github` and `.env`
+- Update the version in `VERSION` and `.github`
 - Commit to your branch
 - Check that the normal build works in CI
 - Run `inv git.tag`
