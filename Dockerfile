@@ -20,10 +20,10 @@ RUN pip3 install -r test_requirements.txt
 WORKDIR /code
 RUN git clone \
     -b v${FAASM_CPYTHON_VERSION} \
-    https://github.com/faasm/faasm-cpython
+    https://github.com/faasm/python
 
 # Submodules
-WORKDIR /code/faasm-cpython
+WORKDIR /code/python
 RUN git submodule update --init
 
 # Install pyfaasm natively

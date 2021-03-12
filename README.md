@@ -1,4 +1,4 @@
-# Faasm Python Environment [![Tests](https://github.com/faasm/faasm-cpython/workflows/Tests/badge.svg?branch=master)](https://github.com/faasm/faasm-cpython/actions)  [![License](https://img.shields.io/github/license/faasm/faasm-cpython.svg)](https://github.com/faasm/faasm-cpython/blob/master/LICENSE.md) 
+# Faasm Python Environment [![Tests](https://github.com/faasm/python/workflows/Tests/badge.svg?branch=master)](https://github.com/faasm/python/actions)  [![License](https://img.shields.io/github/license/faasm/python.svg)](https://github.com/faasm/python/blob/master/LICENSE.md) 
 
 This build cross-compiles CPython and a number of Python modules to WebAssembly
 for use in [Faasm](https://github.com/faasm/faasm).

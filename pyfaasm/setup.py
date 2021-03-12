@@ -21,7 +21,7 @@ See main repo at https://github.com/faasm/faasm
         long_description_content_type="text/markdown",
         author="Simon S",
         author_email="foo@bar.com",
-        url="https://github.com/faasm/faasm-cpython",
+        url="https://github.com/faasm/python",
     )
 
 
