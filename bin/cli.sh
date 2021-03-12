@@ -7,12 +7,12 @@ PROJ_ROOT=${THIS_DIR}/..
 
 pushd ${PROJ_ROOT} > /dev/null
 
-if [[ -z "${CPYTHON_CLI_IMAGE}" ]]; then
+if [[ -z "${PYTHON_CLI_IMAGE}" ]]; then
     VERSION=$(cat VERSION)
-    CPYTHON_CLI_IMAGE=faasm/cpython:${VERSION}
+    PYTHON_CLI_IMAGE=faasm/cpython:${VERSION}
 fi
 
-echo "Running ${CPYTHON_CLI_IMAGE}"
+echo "Running ${PYTHON_CLI_IMAGE}"
 INNER_SHELL=${SHELL:-"/bin/bash"}
 
 docker-compose \

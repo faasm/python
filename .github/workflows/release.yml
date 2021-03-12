@@ -33,4 +33,4 @@ jobs:
           push: true
           context: .
           tags: faasm/cpython:${{ env.TAG_VERSION }}
-          build-args: FAASM_CPYTHON_VERSION=${{ env.TAG_VERSION }}
+          build-args: FAASM_PYTHON_VERSION=${{ env.TAG_VERSION }}

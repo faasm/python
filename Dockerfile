@@ -1,5 +1,5 @@
 FROM faasm/cpp-sysroot:0.0.18
-ARG FAASM_CPYTHON_VERSION
+ARG FAASM_PYTHON_VERSION
 
 RUN apt install -y \
     libssl-dev \
@@ -19,7 +19,7 @@ RUN pip3 install -r test_requirements.txt
 # Clone current tag
 WORKDIR /code
 RUN git clone \
-    -b v${FAASM_CPYTHON_VERSION} \
+    -b v${FAASM_PYTHON_VERSION} \
     https://github.com/faasm/python
 
 # Submodules
