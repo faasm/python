@@ -3,6 +3,7 @@ from invoke import Collection
 from . import (
     container,
     cpython,
+    func,
     git,
     libs,
     mxnet,
@@ -13,6 +14,7 @@ from . import (
 ns = Collection(
     container,
     cpython,
+    func,
     git,
     libs,
     mxnet,

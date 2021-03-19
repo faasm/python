@@ -1,4 +1,4 @@
-FROM faasm/cpp-sysroot:0.0.18
+FROM faasm/cpp-sysroot:0.0.22
 ARG FAASM_PYTHON_VERSION
 
 RUN apt install -y \
@@ -37,6 +37,9 @@ RUN ./bin/crossenv_setup.sh
 
 # Install cross-compiled python packages
 RUN . ./cross_venv/bin/activate && inv libs.install
+
+# Build Faasm function
+RUN inv func
 
 # TODO - enable these once the MXNet/ Horovod work is completed
 # Build mxnet
