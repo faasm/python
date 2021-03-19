@@ -38,6 +38,9 @@ RUN ./bin/crossenv_setup.sh
 # Install cross-compiled python packages
 RUN . ./cross_venv/bin/activate && inv libs.install
 
+# Build Faasm function
+RUN inv func
+
 # TODO - enable these once the MXNet/ Horovod work is completed
 # Build mxnet
 # RUN inv mxnet
