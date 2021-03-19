@@ -1,6 +1,6 @@
 from faasmtools.compile_util import wasm_cmake
 from faasmtools.env import WASM_DIR
-from os.path import join, exists
+from os.path import join
 from invoke import task
 from faasmtools.build import FAASM_LOCAL_DIR
 from os import makedirs, listdir
