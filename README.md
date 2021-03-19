@@ -16,6 +16,10 @@ To set up your local environment, run the `python` CLI as per the Faasm docs,
 then:
 
 ```bash
+# Install a local dev version of the cpp tools
+pip uninstall faasmtools
+pip install -e third-party/cpp
+
 # Install the matching native python in your local env
 ./bin/install_build_python.sh
 
@@ -63,11 +67,11 @@ Several of the code changes to CPython and numpy were borrowed from
 This repo gets built as a container, `faasm/cpython`. If you want to release a
 new version, you can:
 
-- Update the version in `VERSION` and `.github`
+- Update the version in `VERSION` and `.github/workflows/tests.yml`
 - Commit to your branch
-- Check that the normal build works in CI
 - Run `inv git.tag`
-- Let the Github action do the rest
+- Check the release build has run
+- Create a pull request
 
 ## PyFaasm
 
