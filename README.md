@@ -17,8 +17,8 @@ then:
 
 ```bash
 # Install a local dev version of the cpp tools
-pip uninstall faasmtools
-pip install -e third-party/cpp
+pip3 uninstall faasmtools
+pip3 install -e third-party/cpp
 
 # Install the matching native python in your local env
 ./bin/install_build_python.sh
