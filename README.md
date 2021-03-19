@@ -9,21 +9,37 @@ interface](https://github.com/faasm/faasm/blob/master/docs/host_interface.md).
 
 ## Set-up and development
 
-We recommend using Docker for developing this repo. Start the container with:
+This repo is developed using the Faasm development environment, set up according
+to [the docs](https://github.com/faasm/faasm/blob/master/docs/development.md). 
 
-```
-./bin/cli.sh
-```
-
-To show the list of available tasks (inside the container):
+To set up your local environment, run the `python` CLI as per the Faasm docs, 
+then:
 
 ```bash
-inv -l
-```
+# Install the matching native python in your local env
+./bin/install_build_python.sh
 
-The build uses the [Faasm
-toolchain](https://github.com/faasm/faasm-toolchain) to cross-compile both 
-CPython and C-extensions to WebAssembly.
+# Compile CPython to wasm
+inv cpython
+
+# Set up and activate cross-env
+./bin/crossenv_setup.sh
+
+# Activate cross-env
+. cross_venv/bin/activate
+
+# Build Python libraries
+inv libs.install
+
+# Copy runtime files into place
+inv runtime
+
+# Build the Faasm function to wrap CPython
+inv func
+
+# Copy the actual Python functions into place
+inv func.uploadpy --local
+```
 
 ## Code changes
 
@@ -113,26 +129,7 @@ Setuptools and distutils both interrogate the Python system environment during
 the build process. This makes it quite difficult to cross-compile libraries, so
 we use [crossenv](https://github.com/benfogle/crossenv).
 
-To set up crossenv:
-
-```
-./bin/crossenv_setup.sh
-```
-
-You can then activate with:
-
-```
-. cross_venv/bin/activate
-```
-
-From inside the virtual environment, you can inspect the set-up with:
-
-```
-python bin/sanity_check.py | less
-```
-
-This will display the environment used to install Python modules (including the
-relevant cross-compilation variables, e.g. `CC`, `CFLAGS` etc.).
+See the dev instructions above for set-up.
 
 ### Changing the crossenv environment
 
@@ -215,13 +212,8 @@ inv mxnet --clean
 inv mxnet.uninstall
 ```
 
-## Running in Faasm
-
-See the [Faasm python
-docs](https://github.com/faasm/faasm/blob/master/docs/python.md).
-
 ## BLAS and LAPACK
 
 Faasm's normal BLAS and LAPACK support using CLAPACK should be picked up by
 numpy due to the addition of the [site.cfg](../third-party/numpy/site.cfg).
-
+(note 19/03/21 this has been temporarily disabled).
