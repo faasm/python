@@ -1,4 +1,5 @@
 # Proj-specific
+build/
 cross_venv/
 
 # Byte-compiled / optimized / DLL files
