@@ -17,10 +17,14 @@ jobs:
       run:
         working-directory: /code/python
     steps:
+      - name: "Fetch all"
+        run: git fetch --all
       - name: "Fetch ref"
         run: git fetch origin ${GITHUB_REF}:ci-branch
       - name: "Check out branch"
         run: git checkout --force ci-branch
+      - name: "Update cpp submodule"
+        run: git submodule update third-party/cpp
       - name: "Install base requirements"
         run: pip3 install -r requirements.txt
       - name: "Install pyfaasm requirements"
@@ -48,6 +52,8 @@ jobs:
       redis:
         image: redis
     steps:
+      - name: "Fetch all"
+        run: git fetch --all
       - name: "Fetch ref"
         run: git fetch origin ${GITHUB_REF}:ci-branch
       - name: "Check out branch"
