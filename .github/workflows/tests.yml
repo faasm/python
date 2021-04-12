@@ -17,6 +17,8 @@ jobs:
       run:
         working-directory: /code/python
     steps:
+      - name: "Fetch all"
+        run: git fetch --all
       - name: "Fetch ref"
         run: git fetch origin ${GITHUB_REF}:ci-branch
       - name: "Check out branch"
