@@ -17,7 +17,7 @@ WASM_FILE = join(FUNC_BUILD_DIR, "py_func.wasm")
 DEST_FOLDER = join(WASM_DIR, USER, FUNC)
 DEST_FILE = join(DEST_FOLDER, "function.wasm")
 
-FAASM_SHARED_STORAGE_ROOT = join(FAASM_LOCAL_DIR, "shared_store")
+FAASM_SHARED_STORAGE_ROOT = join(FAASM_LOCAL_DIR, "shared")
 PY_FUNC_DIR = join(PROJ_ROOT, "func", "python")
 PY_UPLOAD_DIR = join(FAASM_SHARED_STORAGE_ROOT, "pyfuncs", "python")
 
