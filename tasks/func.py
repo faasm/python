@@ -59,7 +59,7 @@ def uploadpy(ctx, func, local=False, host="upload", port=8002):
         makedirs(func_upload_dir, exist_ok=True)
 
         dest_file = join(func_upload_dir, "function.py")
-
+        print("Copying function {} {} -> {}", func, src_file, dest_file)
         copy(src_file, dest_file)
     else:
         url = "http://{}:{}/p/{}/{}".format(host, port, "python", func)
