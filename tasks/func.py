@@ -39,39 +39,70 @@ def compile(ctx, clean=False, debug=False):
 
 @task
 def upload(ctx, host="upload", port=8002):
+    """
+    Upload the CPython function
+    """
     url = "http://{}:{}/f/{}/{}".format(host, port, USER, FUNC)
+    print("Uploading {}/{} to {}".format(USER, FUNC, url))
     response = requests.put(url, data=open(WASM_FILE, "rb"))
 
     print("Response {}: {}".format(response.status_code, response.text))
 
 
 @task
-def uploadpy(ctx, local=False, host="upload", port=8002):
+def uploadpy(ctx, func, local=False, host="upload", port=8002):
+    src_file = join(PY_FUNC_DIR, "{}.py".format(func))
+
+    if local:
+        makedirs(PY_UPLOAD_DIR, exist_ok=True)
+        func_upload_dir = join(PY_UPLOAD_DIR, func)
+        makedirs(func_upload_dir, exist_ok=True)
+
+        dest_file = join(func_upload_dir, "function.py")
+
+        copy(src_file, dest_file)
+    else:
+        url = "http://{}:{}/p/{}/{}".format(host, port, "python", func)
+        response = requests.put(url, data=open(src_file, "rb"))
+
+        print(
+            "{} response {}: {}".format(
+                func, response.status_code, response.text
+            )
+        )
+
+
+@task
+def upload_all(ctx, local=False, host="upload", port=8002):
     """
-    Upload functions written in Python
+    Upload all Python functions
     """
-    # Get all Python funcs
     funcs = listdir(PY_FUNC_DIR)
     funcs = [f for f in funcs if f.endswith(".py")]
     funcs = [f.replace(".py", "") for f in funcs]
 
     for func in funcs:
-        src_file = join(PY_FUNC_DIR, "{}.py".format(func))
+        uploadpy(ctx, func, local=local, host=host, port=port)
 
-        if local:
-            makedirs(PY_UPLOAD_DIR, exist_ok=True)
-            func_upload_dir = join(PY_UPLOAD_DIR, func)
-            makedirs(func_upload_dir, exist_ok=True)
 
-            dest_file = join(func_upload_dir, "function.py")
+@task
+def invoke(ctx, user, func, input_data=None, host="worker", port=8080):
+    """
+    Invoke a function
+    """
 
-            copy(src_file, dest_file)
-        else:
-            url = "http://{}:{}/p/{}/{}".format(host, port, "python", func)
-            response = requests.put(url, data=open(src_file, "rb"))
+    url = "http://{}:{}".format(host, port)
+    data = {
+        "user": USER,
+        "function": FUNC,
+        "py_user": user,
+        "py_func": func,
+        "python": True,
+    }
 
-            print(
-                "{} response {}: {}".format(
-                    func, response.status_code, response.text
-                )
-            )
+    if input_data:
+        data["input_data"] = input_data
+
+    response = requests.post(url, json=data)
+
+    print("Response {}:\n{}".format(response.status_code, response.text))

@@ -1,4 +1,4 @@
-# Faasm Python Environment [![Tests](https://github.com/faasm/python/workflows/Tests/badge.svg?branch=master)](https://github.com/faasm/python/actions)  [![License](https://img.shields.io/github/license/faasm/python.svg)](https://github.com/faasm/python/blob/master/LICENSE.md) 
+# Faasm Python Environment [![Tests](https://github.com/faasm/python/workflows/Tests/badge.svg?branch=master)](https://github.com/faasm/python/actions)  [![License](https://img.shields.io/github/license/faasm/python.svg)](https://github.com/faasm/python/blob/master/LICENSE.md)
 
 This build cross-compiles CPython and a number of Python modules to WebAssembly
 for use in [Faasm](https://github.com/faasm/faasm).
@@ -10,9 +10,9 @@ interface](https://github.com/faasm/faasm/blob/master/docs/host_interface.md).
 ## Set-up and development
 
 This repo is developed using the Faasm development environment, set up according
-to [the docs](https://github.com/faasm/faasm/blob/master/docs/development.md). 
+to [the docs](https://github.com/faasm/faasm/blob/master/docs/development.md).
 
-To set up your local environment, run the `python` CLI as per the Faasm docs, 
+To set up your local environment, run the `python` CLI as per the Faasm docs,
 then:
 
 ```bash
@@ -42,7 +42,7 @@ inv runtime
 inv func
 
 # Copy the actual Python functions into place
-inv func.uploadpy --local
+inv func.upload-all --local
 ```
 
 ## Code changes
@@ -56,10 +56,10 @@ compare](https://github.com/python/cpython/compare/v3.8.2...faasm:faasm).
 A similar (small) list of changes for numpy can be seen
 [here](https://github.com/numpy/numpy/compare/v1.19.2...faasm:faasm).
 
-CPython is built statically, some notes on this process can be found 
-[here](https://wiki.python.org/moin/BuildStatically). 
+CPython is built statically, some notes on this process can be found
+[here](https://wiki.python.org/moin/BuildStatically).
 
-Several of the code changes to CPython and numpy were borrowed from 
+Several of the code changes to CPython and numpy were borrowed from
 [pyodide](https://github.com/iodide-project/pyodide).
 
 ## Releasing
@@ -107,7 +107,7 @@ scripts on the build machine (not any other Python that might be installed).
 
 Do **not** upgrade Pip in the build machine copy of Python.
 
-The versions of Pip and Python for wasm and the build machine must match 
+The versions of Pip and Python for wasm and the build machine must match
 exactly.
 
 ### Building CPython to WebAssembly
@@ -121,10 +121,10 @@ inv cpython
 The result is installed at `third-party/cpython/install/wasm`.
 
 We provide a [Setup.local](third-party/cpython/Modules/Setup.local) file, which
-specifies which standard CPython modules will be built statically. 
+specifies which standard CPython modules will be built statically.
 
 At the end of the CPython build, it will print out a list of which modules have
-been successfully built and which have failed. Note that many of the standard 
+been successfully built and which have failed. Note that many of the standard
 library modules will fail in this build, but the ones we need should succeed.
 
 ## Cross-compilation set-up
@@ -137,13 +137,13 @@ See the dev instructions above for set-up.
 
 ### Changing the crossenv environment
 
-Crossenv picks up the cross-compilation environment from the CPython 
-build artifacts. Therefore, to make changes to the cross-compilation 
+Crossenv picks up the cross-compilation environment from the CPython
+build artifacts. Therefore, to make changes to the cross-compilation
 environment:
 
 - Modify the CPython build (see `tasks.py`)
-- Rerun the CPython build (`inv cpython --clean`) 
-- Rebuild the crossenv (`./bin/crossenv_setup.sh`) 
+- Rerun the CPython build (`inv cpython --clean`)
+- Rebuild the crossenv (`./bin/crossenv_setup.sh`)
 - Enter the crossenv and inspect the environment with `bin/sanity_check.py`
 
 ## Modules
@@ -155,7 +155,7 @@ To run this you must first have the cross-env activated as described above.
 
 ```bash
 # Install all supported modules
-inv libs.install 
+inv libs.install
 
 # Install experimental modules
 inv libs.install --experimental
@@ -167,7 +167,7 @@ inv libs.install --name numpy
 inv libs.install --name <module_name>
 ```
 
-Libraries will then be installed to 
+Libraries will then be installed to
 `cross_venv/cross/lib/python3.8/site-packages`.
 
 ### Debugging module builds
@@ -206,7 +206,7 @@ inv libs.install --name mxnet
 inv libs.install --name horovod
 ```
 
-### Cleaning and uninstalling 
+### Cleaning and uninstalling
 
 ```
 # Clean then rebuild
