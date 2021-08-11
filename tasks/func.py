@@ -46,7 +46,7 @@ def upload(ctx, host="upload", port=8002):
     print("Uploading {}/{} to {}".format(USER, FUNC, url))
     response = requests.put(url, data=open(WASM_FILE, "rb"))
 
-    print("Response {}: {}".format(response.status_code, response.text))
+    print("Response ({}): {}".format(response.status_code, response.text))
 
 
 @task
@@ -65,11 +65,7 @@ def uploadpy(ctx, func, local=False, host="upload", port=8002):
         url = "http://{}:{}/p/{}/{}".format(host, port, "python", func)
         response = requests.put(url, data=open(src_file, "rb"))
 
-        print(
-            "{} response {}: {}".format(
-                func, response.status_code, response.text
-            )
-        )
+        print("Response ({}): {}".format(response.status_code, response.text))
 
 
 @task
@@ -104,5 +100,8 @@ def invoke(ctx, user, func, input_data=None, host="worker", port=8080):
         data["input_data"] = input_data
 
     response = requests.post(url, json=data)
+    if response.status_code != 200:
+        print("Error ({}):\n{}".format(response.status_code, response.text))
+        exit(1)
 
-    print("Response {}:\n{}".format(response.status_code, response.text))
+    print("Success:\n{}".format(response.text))
