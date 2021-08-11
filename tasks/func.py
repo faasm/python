@@ -104,5 +104,8 @@ def invoke(ctx, user, func, input_data=None, host="worker", port=8080):
         data["input_data"] = input_data
 
     response = requests.post(url, json=data)
+    if response.status_code != 200:
+        print("Error ({}):\n{}".format(response.status_code, response.text))
+        exit(1)
 
-    print("Response {}:\n{}".format(response.status_code, response.text))
+    print("Success:\n{}".format(response.text))
