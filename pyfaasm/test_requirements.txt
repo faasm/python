@@ -1,5 +1,0 @@
-keyring
-numpy
-parameterized
-redis
-twine

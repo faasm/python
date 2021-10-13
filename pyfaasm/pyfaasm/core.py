@@ -7,13 +7,6 @@ import ctypes
 # Faasm host interface:
 # https://github.com/faasm/faasm/blob/master/include/faasm/host_interface.h
 
-NATIVE_SUPPORTING_LIBS = [
-    "libpistache.so",
-    "libfaabricmpi.so",
-]
-
-NATIVE_INTERFACE_LIB = "libemulator.so"
-
 env_cache = dict()
 
 input_data = None
@@ -37,10 +30,6 @@ def set_env_bool(var_name, value):
     env_cache[var_name] = value
 
 
-def is_wasm():
-    return get_env_bool("PYTHONWASM")
-
-
 def is_local_chaining():
     return get_env_bool("PYTHON_LOCAL_CHAINING")
 
@@ -59,19 +48,7 @@ def set_local_input_output(value):
 
 def _init_host_interface():
     global _host_interface
-
-    if _host_interface is None:
-        # Wasm and native environments are different
-        if is_wasm():
-            # Wasm expects the main application to handle the relevant calls
-            _host_interface = ctypes.CDLL(None)
-        else:
-            # Load all supporting libs as globally linkable
-            for lib in NATIVE_SUPPORTING_LIBS:
-                ctypes.CDLL(lib, mode=ctypes.RTLD_GLOBAL)
-
-            # Load main Faasm host interface lib
-            _host_interface = ctypes.CDLL(NATIVE_INTERFACE_LIB)
+    _host_interface = ctypes.CDLL(None)
 
 
 def get_input_len():
