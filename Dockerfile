@@ -24,9 +24,6 @@ RUN git clone \
 WORKDIR /code/python
 RUN git submodule update --init
 
-# Install pyfaasm natively
-RUN inv pyfaasm.native
-
 # Build CPython to wasm
 RUN inv cpython
 
