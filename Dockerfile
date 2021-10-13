@@ -1,4 +1,4 @@
-FROM faasm/cpp-sysroot:0.0.24
+FROM faasm/cpp-sysroot:0.1.0
 ARG FAASM_PYTHON_VERSION
 
 RUN apt install -y \
@@ -23,9 +23,6 @@ RUN git clone \
 # Submodules
 WORKDIR /code/python
 RUN git submodule update --init
-
-# Install pyfaasm natively
-RUN inv pyfaasm.native
 
 # Build CPython to wasm
 RUN inv cpython

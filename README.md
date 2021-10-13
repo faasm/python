@@ -7,10 +7,18 @@ It also provides a [small Python library](pyfaasm/) which uses `ctypes` to
 support calls to the [Faasm host
 interface](https://github.com/faasm/faasm/blob/master/docs/host_interface.md).
 
-## Set-up and development
+## Development
 
-This repo is developed using the Faasm development environment, set up according
-to [the docs](https://github.com/faasm/faasm/blob/master/docs/development.md).
+Most use of this project is via the Faasm [development
+environment](https://github.com/faasm/faasm/blob/master/docs/development.md).
+
+You should only need the instructions below if you want to:
+
+- Modify the Faasm CPython runner.
+- Change the Faasm Python host interface (`pyfaasm`).
+- Add Python libraries to the Faasm environment.
+
+### Building CPython and libraries
 
 To set up your local environment, run the `python` CLI as per the Faasm docs,
 then:
@@ -72,19 +80,6 @@ new version, you can:
 - Run `inv git.tag`
 - Check the release build has run
 - Create a pull request
-
-## PyFaasm
-
-To build and test this natively using the Faasm emulator (from inside the
-development container):
-
-```bash
-# Build natively
-inv pyfaasm.native
-
-# Run tests
-inv pyfaasm.test
-```
 
 ## Set-up notes
 
