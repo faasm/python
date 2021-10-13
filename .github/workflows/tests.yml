@@ -25,10 +25,8 @@ jobs:
         run: git checkout --force ci-branch
       - name: "Update cpp submodule"
         run: git submodule update third-party/cpp
-      - name: "Install base requirements"
+      - name: "Install requirements"
         run: pip3 install -r requirements.txt
-      - name: "Install pyfaasm requirements"
-        run: pip3 install -r pyfaasm/test_requirements.txt
       - name: "Python formatting check"
         run: ./bin/check_python.sh
       - name: "Check C/C++ formatting"
@@ -58,11 +56,9 @@ jobs:
         run: git fetch origin ${GITHUB_REF}:ci-branch
       - name: "Check out branch"
         run: git checkout --force ci-branch
-      - name: "Install base requirements"
+      - name: "Install requirements"
         run: pip3 install -r requirements.txt
-      - name: "Install pyfaasm requirements"
-        run: pip3 install -r pyfaasm/test_requirements.txt
-      - name: "Install pyfaasm"
-        run: inv pyfaasm.native
-      - name: "Run pyfaasm tests"
-        run: inv pyfaasm.test
+      - name: "Build Python function"
+        run: inv func
+      - name: "Check copying Python functions locally"
+        run: inv func.upload-all --local
