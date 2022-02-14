@@ -1,16 +1,16 @@
-# Faasm Python Environment [![Tests](https://github.com/faasm/python/workflows/Tests/badge.svg?branch=master)](https://github.com/faasm/python/actions)  [![License](https://img.shields.io/github/license/faasm/python.svg)](https://github.com/faasm/python/blob/master/LICENSE.md)
+# Faasm Python Environment [![Tests](https://github.com/faasm/python/workflows/Tests/badge.svg?branch=main)](https://github.com/faasm/python/actions)  [![License](https://img.shields.io/github/license/faasm/python.svg)](https://github.com/faasm/python/blob/main/LICENSE.md)
 
 This build cross-compiles CPython and a number of Python modules to WebAssembly
 for use in [Faasm](https://github.com/faasm/faasm).
 
 It also provides a [small Python library](pyfaasm/) which uses `ctypes` to
 support calls to the [Faasm host
-interface](https://github.com/faasm/faasm/blob/master/docs/host_interface.md).
+interface](https://faasm.readthedocs.io/en/latest/source/host_interface.html).
 
 ## Development
 
 Most use of this project is via the Faasm [development
-environment](https://github.com/faasm/faasm/blob/master/docs/development.md).
+environment](https://faasm.readthedocs.io/en/latest/source/development.html).
 
 You should only need the instructions below if you want to:
 

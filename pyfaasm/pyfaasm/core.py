@@ -5,7 +5,7 @@ import ctypes
 # https://docs.python.org/3/library/ctypes.html
 #
 # Faasm host interface:
-# https://github.com/faasm/faasm/blob/master/include/faasm/host_interface.h
+# https://github.com/faasm/faasm/blob/main/include/faasm/host_interface.h
 
 env_cache = dict()
 
