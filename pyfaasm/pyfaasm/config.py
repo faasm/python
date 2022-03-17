@@ -20,10 +20,10 @@ class MatrixConf(object):
         self.bytes_per_matrix = (matrix_size * matrix_size) * NP_ELEMENT_SIZE
 
     def get_submatrices_per_row(self, split_level):
-        return 2 ** split_level
+        return 2**split_level
 
     def get_submatrix_size(self, split_level):
-        return self.matrix_size // (2 ** split_level)
+        return self.matrix_size // (2**split_level)
 
     def get_bytes_per_submatrix(self, split_level):
         sm_size = self.get_submatrix_size(split_level)
