@@ -1,4 +1,4 @@
-FROM faasm/cpp-sysroot:0.1.0
+FROM faasm/cpp-sysroot:0.1.6
 ARG FAASM_PYTHON_VERSION
 
 RUN apt install -y \
