@@ -83,13 +83,12 @@ def upload_all(ctx, local=False):
     """
     Upload all Python functions
     """
-    host, port = get_faasm_upload_host_port()
     funcs = listdir(PY_FUNC_DIR)
     funcs = [f for f in funcs if f.endswith(".py")]
     funcs = [f.replace(".py", "") for f in funcs]
 
     for func in funcs:
-        uploadpy(ctx, func, local=local, host=host, port=port)
+        uploadpy(ctx, func, local=local)
 
 
 @task
