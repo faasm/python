@@ -1,6 +1,11 @@
 from faasmtools.compile_util import wasm_cmake
 from faasmtools.env import WASM_DIR
 from faasmtools.build import FAASM_LOCAL_DIR
+from faasmtools.endpoints import (
+    get_faasm_invoke_host_port,
+    get_faasm_upload_host_port,
+    get_knative_headers,
+)
 
 import requests
 from os.path import join
@@ -38,10 +43,11 @@ def compile(ctx, clean=False, debug=False):
 
 
 @task
-def upload(ctx, host="upload", port=8002):
+def upload(ctx):
     """
     Upload the CPython function
     """
+    host, port = get_faasm_upload_host_port()
     url = "http://{}:{}/f/{}/{}".format(host, port, USER, FUNC)
     print("Uploading {}/{} to {}".format(USER, FUNC, url))
     response = requests.put(url, data=open(WASM_FILE, "rb"))
@@ -50,7 +56,11 @@ def upload(ctx, host="upload", port=8002):
 
 
 @task
-def uploadpy(ctx, func, local=False, host="upload", port=8002):
+def uploadpy(ctx, func, local=False):
+    """
+    Upload the given Python function
+    """
+    host, port = get_faasm_upload_host_port()
     src_file = join(PY_FUNC_DIR, "{}.py".format(func))
 
     if local:
@@ -69,7 +79,7 @@ def uploadpy(ctx, func, local=False, host="upload", port=8002):
 
 
 @task
-def upload_all(ctx, local=False, host="upload", port=8002):
+def upload_all(ctx, local=False):
     """
     Upload all Python functions
     """
@@ -78,15 +88,15 @@ def upload_all(ctx, local=False, host="upload", port=8002):
     funcs = [f.replace(".py", "") for f in funcs]
 
     for func in funcs:
-        uploadpy(ctx, func, local=local, host=host, port=port)
+        uploadpy(ctx, func, local=local)
 
 
 @task
-def invoke(ctx, user, func, input_data=None, host="worker", port=8080):
+def invoke(ctx, user, func, input_data=None):
     """
     Invoke a function
     """
-
+    host, port = get_faasm_invoke_host_port()
     url = "http://{}:{}".format(host, port)
     data = {
         "user": USER,
@@ -99,7 +109,9 @@ def invoke(ctx, user, func, input_data=None, host="worker", port=8080):
     if input_data:
         data["input_data"] = input_data
 
-    response = requests.post(url, json=data)
+    headers = get_knative_headers()
+    response = requests.post(url, json=data, headers=headers)
+
     if response.status_code != 200:
         print("Error ({}):\n{}".format(response.status_code, response.text))
         exit(1)
