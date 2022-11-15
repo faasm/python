@@ -22,19 +22,19 @@ RUN mkdir -p /code \
 RUN cd /code/python \
     && ./bin/create_venv.sh \
     && source ./venv/bin/activate \
-    #     && inv \
-    #         cpython \
-    #     && ./bin/crossenv_setup.sh \
-    #     && source ./venv/bin/activate \
-    #     && inv \
-    #         func \
-    #         runtime
+    && inv \
+        cpython \
+    && ./bin/crossenv_setup.sh \
+    && source ./venv/bin/activate \
+    && inv \
+        func \
+        runtime
 
-# TODO: Install cross-compiled python packages
-# RUN cd /code/python \
-    #     && ./bin/crossenv_setup.sh \
-    #     && source ./cross_venv/bin/activate \
-    #     && inv libs.install
+# Install cross-compiled python packages
+RUN cd /code/python \
+    && source ./cross_venv/bin/activate \
+    && pip3 install -r crossenv/requirements.txt
+    && inv -r crossenv libs.install
 
 
 # TODO: enable these once the MXNet/ Horovod work is completed

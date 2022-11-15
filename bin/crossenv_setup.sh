@@ -2,7 +2,7 @@
 
 set -e
 
-THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]:-${(%):-%x}}" )" >/dev/null 2>&1 && pwd )"
 PROJ_ROOT=${THIS_DIR}/..
 
 # NOTE - all the commands must use the specially-installed python
@@ -21,7 +21,7 @@ popd >> /dev/null
 echo "Installing cython"
 ${BUILD_PIP} install cython
 
-# echo "Installing invoke"
+echo "Installing invoke"
 # ${BUILD_PIP} install invoke
 
 # Run the set-up script
@@ -30,7 +30,7 @@ ${BUILD_PYTHON} bin/crossenv_setup.py
 
 # Activate the environment
 source cross_venv/bin/activate
-${BUILD_PIP} install -r crossenv_requirements.txt
+${BUILD_PIP} install -r crossenv/requirements.txt
 
 echo ""
 echo "Inside crossenv: "
