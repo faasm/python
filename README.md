@@ -75,11 +75,18 @@ Several of the code changes to CPython and numpy were borrowed from
 This repo gets built as a container, `faasm/cpython`. If you want to release a
 new version, you can:
 
-- Update the version in `VERSION` and `.github/workflows/tests.yml`
+- Bump the code version with: `inv git.bump`
 - Commit to your branch
 - Run `inv git.tag`
 - Check the release build has run
 - Create a pull request
+
+The release build will generate a docker image with the new tag. You can also
+trigger the image build manually with:
+
+```bash
+inv docker.build [--push] [--nocache]
+```
 
 ## Set-up notes
 

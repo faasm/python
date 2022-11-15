@@ -1,8 +1,8 @@
 from invoke import Collection
 
 from . import (
-    container,
     cpython,
+    docker,
     func,
     git,
     libs,
@@ -11,8 +11,8 @@ from . import (
 )
 
 ns = Collection(
-    container,
     cpython,
+    docker,
     func,
     git,
     libs,
