@@ -24,6 +24,9 @@ RUN cd /code/python \
     && source ./venv/bin/activate \
     && inv \
         cpython \
+    && ./bin/crossenv_setup.sh \
+    && source ./venv/bin/activate \
+    && inv \
         func \
         runtime
 
