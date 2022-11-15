@@ -33,7 +33,7 @@ RUN cd /code/python \
 # Install cross-compiled python packages
 RUN cd /code/python \
     && source ./cross_venv/bin/activate \
-    && pip3 install -r crossenv/requirements.txt
+    && pip3 install -r crossenv/requirements.txt \
     && inv -r crossenv libs.install
 
 
