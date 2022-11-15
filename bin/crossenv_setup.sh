@@ -21,16 +21,12 @@ popd >> /dev/null
 echo "Installing cython"
 ${BUILD_PIP} install cython
 
-echo "Installing invoke"
-# ${BUILD_PIP} install invoke
-
 # Run the set-up script
 pushd ${PROJ_ROOT} >> /dev/null
 ${BUILD_PYTHON} bin/crossenv_setup.py
 
 # Activate the environment
 source cross_venv/bin/activate
-${BUILD_PIP} install -r crossenv/requirements.txt
 
 echo ""
 echo "Inside crossenv: "
