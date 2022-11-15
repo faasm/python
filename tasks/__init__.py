@@ -6,7 +6,6 @@ from . import (
     format_code,
     func,
     git,
-    libs,
     mxnet,
     runtime,
 )
@@ -17,7 +16,6 @@ ns = Collection(
     format_code,
     func,
     git,
-    libs,
     mxnet,
     runtime,
 )
