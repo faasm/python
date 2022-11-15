@@ -1,5 +1,5 @@
 from invoke import task
-from tasks.util.env import PROJ_ROOT
+from tasks.env import PROJ_ROOT
 from subprocess import run
 
 
