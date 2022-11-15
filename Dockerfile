@@ -12,39 +12,35 @@ RUN mkdir -p /code \
         -b v${FAASM_PYTHON_VERSION} \
         https://github.com/faasm/python \
         /code/python \
-    && git submodule update --init
+    && git submodule update --init -f third-party/cpp \
+    && git submodule update --init -f third-party/cpython \
+    && git submodule update --init -f third-party/crossenv \
+    && ./bin/install_build_python.sh
 
-# Hack to avoid rebuilding build CPython every time the code changes
-# COPY bin/install_build_python.sh /tmp/
-# RUN cd /tmp \
-    #     && ./install_build_python.sh
-#
-# # Cross-compile CPython to WASM
-# # TODO: use venvs
-# RUN cd /code/python \
-    #     && pip3 install -r requirements.txt \
-    #     && inv cpython
-#
-# # Set up crossenv to cross-compile python libraries to WASM
+# Cross-compile CPython to WASM and the python libraries
+RUN cd /code/python \
+    && ./bin/create_venv.sh \
+    && source ./venv/bin/activate \
+    && inv \
+        cpython \
+        func \
+        runtime
+
+# TODO: Install cross-compiled python packages
 # RUN cd /code/python \
     #     && ./bin/crossenv_setup.sh \
-    #     && inv \
-    #         func \
-    #         runtime
+    #     && source ./cross_venv/bin/activate \
+    #     && inv libs.install
 
-# Install cross-compiled python packages
-# RUN . ./cross_venv/bin/activate && inv libs.install
 
-# Build Faasm function
-# RUN inv func
-
-# Copy files into place
-# RUN inv runtime
-
-# TODO - enable these once the MXNet/ Horovod work is completed
+# TODO: enable these once the MXNet/ Horovod work is completed
 # Build mxnet
 # RUN inv mxnet
 
-# Install experimental pacakges
+# TODO: Install experimental pacakges
 # RUN . ./cross_venv/bin/activate && inv libs.install --experimental
 
+WORKDIR /code/python
+ENV TERM xterm-256color
+RUN sed -i 's/\/code\/cpp\/bin/\/code\/python\/bin/g' ~/.bashrc
+CMD ["/bin/bash", "-l"]
