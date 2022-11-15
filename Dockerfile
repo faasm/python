@@ -22,13 +22,13 @@ RUN mkdir -p /code \
 RUN cd /code/python \
     && ./bin/create_venv.sh \
     && source ./venv/bin/activate \
-    && inv \
-        cpython \
-    && ./bin/crossenv_setup.sh \
-    && source ./venv/bin/activate \
-    && inv \
-        func \
-        runtime
+    #     && inv \
+    #         cpython \
+    #     && ./bin/crossenv_setup.sh \
+    #     && source ./venv/bin/activate \
+    #     && inv \
+    #         func \
+    #         runtime
 
 # TODO: Install cross-compiled python packages
 # RUN cd /code/python \
