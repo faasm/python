@@ -1,10 +1,16 @@
 import os
 
 from copy import copy
-from faasmtools.build import WASM_LIB_INSTALL, CMAKE_TOOLCHAIN_FILE
+from tasks.env import (
+    CMAKE_TOOLCHAIN_FILE,
+    CROSSENV_DIR,
+    PROJ_ROOT,
+    THIRD_PARTY_DIR,
+    USABLE_CPUS,
+    WASM_LIB_INSTALL,
+)
 from os.path import join
 from subprocess import run
-from tasks.env import USABLE_CPUS, THIRD_PARTY_DIR, CROSSENV_DIR, PROJ_ROOT
 from invoke import task, Failure
 
 MXNET_LIB = join(WASM_LIB_INSTALL, "libmxnet.so")

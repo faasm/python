@@ -17,22 +17,12 @@ jobs:
       run:
         working-directory: /code/python
     steps:
-      - name: "Fetch all"
-        run: git fetch --all
-      - name: "Fetch ref"
-        run: git fetch origin ${GITHUB_REF}:ci-branch
-      - name: "Check out branch"
-        run: git checkout --force ci-branch
-      - name: "Update cpp submodule"
-        run: git submodule update third-party/cpp
-      - name: "Install requirements"
-        run: pip3 install -r requirements.txt
-      - name: "Python formatting check"
-        run: ./bin/check_python.sh
-      - name: "Check C/C++ formatting"
-        run: ./bin/run_clang_format.sh
-      - name: "Check no formatting changes"
-        run: git diff --exit-code
+      - name: "Fetch code"
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: "Check formatting"
+        run: ./bin/inv_wrapper.sh format-code --check
 
   build:
     if: github.event.pull_request.draft == false
