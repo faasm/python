@@ -12,6 +12,7 @@ RUN mkdir -p /code \
         -b v${FAASM_PYTHON_VERSION} \
         https://github.com/faasm/python \
         /code/python \
+    && cd /code/python \
     && git submodule update --init -f third-party/cpp \
     && git submodule update --init -f third-party/cpython \
     && git submodule update --init -f third-party/crossenv \
