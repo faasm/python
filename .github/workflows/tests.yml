@@ -13,9 +13,6 @@ jobs:
     runs-on: ubuntu-20.04
     container:
       image: faasm/cpython:0.2.0
-    defaults:
-      run:
-        working-directory: /code/python
     steps:
       - name: "Fetch code"
         uses: actions/checkout@v3
