@@ -3,8 +3,8 @@
 This build cross-compiles CPython and a number of Python modules to WebAssembly
 for use in [Faasm](https://github.com/faasm/faasm).
 
-It also provides a [small Python library](pyfaasm/) which uses `ctypes` to
-support calls to the [Faasm host
+It also provides a [`pyfaasm` a small Python library](pyfaasm/) which uses
+`ctypes` to support calls to the [Faasm host
 interface](https://faasm.readthedocs.io/en/latest/source/host_interface.html).
 
 ## Development
@@ -20,10 +20,37 @@ You should only need the instructions below if you want to:
 
 ### Building CPython and libraries
 
-To set up your local environment, run the `python` CLI as per the Faasm docs,
-then:
+Faasm runs python code by cross-compiling the CPython runtime to WebAssembly,
+and adding a small entrypoint function to run Python code on the cross-compiled
+runtime.
+
+To cross-compile the CPython runtime, we first need to install a native CPython
+of the _exact_ same version:
 
 ```bash
+inv cpython.native
+```
+
+Then, you can cross-compile CPython from our [fork](
+https://github.com/faasm/cpython):
+
+```bash
+inv cpython.wasm
+```
+
+This generates a static version of `libpython` that we link to the entrypoint
+function. To cross-compile this entrypoint function you can run:
+
+```bash
+inv cpython.func
+```
+
+### Adding Python modules to the Faasm environment
+
+FIXME FIXME
+
+```bash
+TODO: update
 # Install a local dev version of the cpp tools
 pip3 uninstall faasmtools
 pip3 install -e third-party/cpp
