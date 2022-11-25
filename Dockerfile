@@ -15,7 +15,8 @@ RUN mkdir -p /code \
     && cd /code/python \
     && git submodule update --init -f third-party/cpp \
     && git submodule update --init -f third-party/cpython \
-    && git submodule update --init -f third-party/crossenv
+    && git submodule update --init -f third-party/crossenv \
+    && git config --global --add safe.directory /usr/local/code/faasm
 
 # Cross-compile CPython to WASM and the python libraries
 RUN cd /code/python \

@@ -51,6 +51,6 @@ jobs:
         with:
           submodules: true
       - name: "Build Python function"
-        run: ./bin/inv_wrapper.sh func
+        run: ./bin/inv_wrapper.sh cpython.func
       - name: "Check copying Python functions locally"
         run: ./bin/inv_wrapper.sh func.upload-all --local
