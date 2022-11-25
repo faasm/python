@@ -15,19 +15,21 @@ RUN mkdir -p /code \
     && cd /code/python \
     && git submodule update --init -f third-party/cpp \
     && git submodule update --init -f third-party/cpython \
-    && git submodule update --init -f third-party/crossenv \
-    && ./bin/install_build_python.sh
+    && git submodule update --init -f third-party/crossenv
 
 # Cross-compile CPython to WASM and the python libraries
 RUN cd /code/python \
     && ./bin/create_venv.sh \
     && source ./venv/bin/activate \
+    # Buld and install a native CPython and a cross-compiled CPython with the
+    # same version. Also cross-compile the entrypoint function for CPython
     && inv \
-        cpython \
+        cpyton.native \
+        cpython.wasm \
+        cpython.func \
     && ./bin/crossenv_setup.sh \
     && source ./venv/bin/activate \
     && inv \
-        func \
         runtime
 
 # Install cross-compiled python packages
