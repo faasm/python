@@ -16,7 +16,7 @@ RUN mkdir -p /code \
     && git submodule update --init -f third-party/cpp \
     && git submodule update --init -f third-party/cpython \
     && git submodule update --init -f third-party/crossenv \
-    && git config --global --add safe.directory /usr/local/code/faasm
+    && git config --global --add safe.directory /code/python
 
 # Cross-compile CPython to WASM and the python libraries
 RUN cd /code/python \
@@ -25,7 +25,7 @@ RUN cd /code/python \
     # Buld and install a native CPython and a cross-compiled CPython with the
     # same version. Also cross-compile the entrypoint function for CPython
     && inv \
-        cpyton.native \
+        cpython.native \
         cpython.wasm \
         cpython.func \
     && ./bin/crossenv_setup.sh \
