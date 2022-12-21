@@ -14,8 +14,8 @@ environment](https://faasm.readthedocs.io/en/latest/source/development.html).
 
 You should only need the instructions below if you want to:
 
-- Modify the Faasm CPython runner.
-- Change the Faasm Python host interface (`pyfaasm`).
+- [Modify the Faasm CPython runner.](#building-cpython-and-libraries)
+- [Change the Faasm Python host interface (`pyfaasm`)](#change-the-python-host-interface).
 - Add Python libraries to the Faasm environment.
 
 ### Building CPython and libraries
@@ -45,40 +45,46 @@ function. To cross-compile this entrypoint function you can run:
 inv cpython.func
 ```
 
+### Change the Python host interface
+
+Faasm provides a small python library, `pyfaasm` so that functions written in
+Python (which are _not_ cross-compiled to WebAssembly) can communicate with the
+Faasm runtime.
+
+To install `pyfaasm` we need to use the same `pip` version we installed
+natively (and cross-compiled) as part of the CPython build in the previous
+section. Setuptools and distutils, pip's tooling to install libraries,
+interrogate the system environment during the library install process. This
+makes it quite difficult to install `pyfaasm` at the right location, using the
+right version of `pip`. We use [crossenv](https://github.com/benfogle/crossenv)
+to help with that.
+
+To install `pyfaasm` we need to activate the `crossenv` virtual environment, we
+do so in a separate shell for simplicity:
+
+```bash
+bash
+
+./bin/crossenv_setup.sh
+source ./cross_venv/bin/activate
+pip3 install -r crossenv/requirements.txt
+# TODO: rename
+inv -r crossenv libs.install
+
+exit
+```
+
+To use the `pyfaasm` library in Faasm, we still need to copy the installed
+files to the right runtime location:
+
+```bash
+inv runtime
+```
+
 ### Adding Python modules to the Faasm environment
 
 FIXME FIXME
 
-```bash
-TODO: update
-# Install a local dev version of the cpp tools
-pip3 uninstall faasmtools
-pip3 install -e third-party/cpp
-
-# Install the matching native python in your local env
-./bin/install_build_python.sh
-
-# Compile CPython to wasm
-inv cpython
-
-# Set up and activate cross-env
-./bin/crossenv_setup.sh
-
-# Activate cross-env
-. cross_venv/bin/activate
-
-# Build Python libraries
-inv libs.install
-
-# Copy runtime files into place
-inv runtime
-
-# Build the Faasm function to wrap CPython
-inv func
-
-# Copy the actual Python functions into place
-inv func.upload-all --local
-```
 
 ## Code changes
 
@@ -121,40 +127,12 @@ We highly recommend using the containerised approach above. Everything
 discuessed below is already set up in the container environment, and these notes
 are only useful when debugging or upgrading parts of the build.
 
-### CPython on the build machine/ container
-
-To cross-compile CPython and C-extensions, we need a version of Python on the
-build machine that _exactly_ matches the version of CPython we're building.
-This is handled with the `install_build_python.sh` script.
-
-This will install Python at `/usr/local/faasm/python3.8`.
-
-When cross-compiling we _have_ to use this Python when running commands and
-scripts on the build machine (not any other Python that might be installed).
-
 ### Upgrading Pip
 
 Do **not** upgrade Pip in the build machine copy of Python.
 
 The versions of Pip and Python for wasm and the build machine must match
 exactly.
-
-### Building CPython to WebAssembly
-
-You can build CPython by running (with optional `--clean`):
-
-```
-inv cpython
-```
-
-The result is installed at `third-party/cpython/install/wasm`.
-
-We provide a [Setup.local](third-party/cpython/Modules/Setup.local) file, which
-specifies which standard CPython modules will be built statically.
-
-At the end of the CPython build, it will print out a list of which modules have
-been successfully built and which have failed. Note that many of the standard
-library modules will fail in this build, but the ones we need should succeed.
 
 ## Cross-compilation set-up
 
