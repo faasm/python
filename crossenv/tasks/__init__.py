@@ -1,9 +1,9 @@
 from invoke import Collection
 
 from . import (
-    libs,
+    modules,
 )
 
 ns = Collection(
-    libs,
+    modules,
 )

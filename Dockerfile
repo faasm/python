@@ -31,13 +31,13 @@ RUN cd /code/python \
     && ./bin/crossenv_setup.sh \
     && source ./venv/bin/activate \
     && inv \
-        runtime
+        modules.copy
 
-# Install cross-compiled python packages
+# Install cross-compiled python modules
 RUN cd /code/python \
     && source ./cross_venv/bin/activate \
     && pip3 install -r crossenv/requirements.txt \
-    && inv -r crossenv libs.install
+    && inv -r crossenv modules.install
 
 
 # TODO: enable these once the MXNet/ Horovod work is completed
