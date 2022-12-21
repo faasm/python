@@ -69,17 +69,19 @@ FAASM_ZYGOTE()
 {
     Py_InitializeEx(0);
 
-    setUpPyNumpy();
+    // 21/12/2022 - Numpy support is broken
+    // setUpPyNumpy();
 
     unsigned int preloadLibs = getConfFlag("PYTHON_PRELOAD");
     if (preloadLibs == 1) {
-        // Import numpy up front
+        /* 21/12/2022 - Numpy support is broken
         PyObject* numpyModule = PyImport_ImportModule("numpy");
         if (!numpyModule) {
             printf("\nFailed to import numpy\n");
         } else {
             printf("\nPython initialised numpy\n");
         }
+        */
 
         // Import pyfaasm
         PyObject* pyfaasmModule = PyImport_ImportModule("pyfaasm.core");
