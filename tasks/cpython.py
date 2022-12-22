@@ -74,8 +74,8 @@ def _run_cpython_cmd(label, cmd_array):
     # Unfortunately, building CPython with SIMD leads to some errors with
     # frozen bytecode. Thus, we manually strip it out here
     cmd_str = " ".join(cmd_array)
-    patt = compile('(\s*)-msimd128')
-    cmd_str = patt.sub('', cmd_str)
+    patt = compile("(\s*)-msimd128")
+    cmd_str = patt.sub("", cmd_str)
     print("CPYTHON BUILD STEP: {}".format(label))
     print(cmd_str)
 
@@ -192,8 +192,8 @@ def native(ctx, clean=False):
         'CXX="clang++-13"',
         'CFLAGS="-O3 -DANSI"',
         'LD="clang-13"',
-        './configure',
-        '--prefix={}'.format(PYTHON_INSTALL_DIR),
+        "./configure",
+        "--prefix={}".format(PYTHON_INSTALL_DIR),
     ]
     # configure_cmd = "./configure --prefix={}".format(PYTHON_INSTALL_DIR)
     native_configure_cmd = " ".join(native_configure_cmd)
