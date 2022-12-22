@@ -92,7 +92,7 @@ def show(ctx):
 
 
 @task
-def install(ctx, name=None, experimental=False):
+def build(ctx, name=None, experimental=False):
     """
     Install cross-compiled libraries
     """

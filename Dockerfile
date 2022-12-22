@@ -27,17 +27,19 @@ RUN cd /code/python \
     && inv \
         cpython.native \
         cpython.wasm \
-        cpython.func \
-    && ./bin/crossenv_setup.sh \
-    && source ./venv/bin/activate \
-    && inv \
-        modules.copy
+        cpython.func
 
-# Install cross-compiled python modules
+# Build cross-compiled python modules, including `pyfaasm`
 RUN cd /code/python \
+    && ./bin/crossenv_setup.sh \
     && source ./cross_venv/bin/activate \
     && pip3 install -r crossenv/requirements.txt \
-    && inv -r crossenv modules.install
+    && inv -r crossenv modules.build
+
+# Finally, install the cross-compiled Python modules
+RUN cd /code/python \
+    && source ./venv/bin/activate \
+    && inv modules.install
 
 
 # TODO: enable these once the MXNet/ Horovod work is completed
