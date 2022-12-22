@@ -74,7 +74,7 @@ def _run_cpython_cmd(label, cmd_array):
     # Unfortunately, building CPython with SIMD leads to some errors with
     # frozen bytecode. Thus, we manually strip it out here
     cmd_str = " ".join(cmd_array)
-    patt = compile("(\s*)-msimd128")
+    patt = compile(r"(\s*)-msimd128")
     cmd_str = patt.sub("", cmd_str)
     print("CPYTHON BUILD STEP: {}".format(label))
     print(cmd_str)
