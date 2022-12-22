@@ -24,7 +24,7 @@ endif()
 add_executable(py_func pyinit.c pyinit.h py_func.cpp)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Wasm")
-    target_link_libraries(py_func ${FAASM_FUNC_LIBS} ${PYTHON_LIBRARIES})
+    target_link_libraries(py_func ${FAASM_FUNC_LIBS} ${PYTHON_LIBRARIES} ffi)
     target_include_directories(py_func PUBLIC ${PYTHON_INCLUDE_DIRS})
 
     # Need to export all symbols to support dynamic linking C-extensions
