@@ -16,7 +16,7 @@ You should only need the instructions below if you want to:
 
 - [Modify the Faasm CPython runner](#building-cpython-and-libraries)
 - [Change the Faasm Python host interface (`pyfaasm`)](#change-the-python-host-interface).
-- Add Python libraries to the Faasm environment
+- [Add Python modules to the Faasm environment](#addding-python-modules-to-the-faasm-environment).
 
 ### Building CPython and libraries
 
@@ -67,7 +67,7 @@ bash
 ./bin/crossenv_setup.sh
 source ./cross_venv/bin/activate
 pip3 install -r crossenv/requirements.txt
-inv -r crossenv modules.install
+inv -r crossenv modules.build
 exit
 ```
 
@@ -75,41 +75,42 @@ To use the `pyfaasm` library in Faasm, we still need to copy the installed
 files to the right runtime location:
 
 ```bash
-inv modules.copy
+inv modules.install
 ```
 
 ### Adding Python modules to the Faasm environment
 
 Crossenv picks up the cross-compilation environment from the CPython
-build artifacts. Therefore, to make changes to the cross-compilation
-environment:
-
-- Modify the CPython build (see [`tasks/cpython.py`](./tasks/cpython.py))
-- Rerun the CPython build (`inv cpython.wasm --clean`)
-- Rebuild the crossenv (`./bin/crossenv_setup.sh`)
-- Enter the crossenv and inspect the environment with `bin/sanity_check.py`
-
-With the crossenv activated, we can build modules with normal `pip`.
-
-There is a wrapper script that will apply modifications if we know about them.
-To run this you must first have the cross-env activated as described above.
+build artifacts. With the crossenv activated, we can build modules with normal
+`pip`. However, there is a wrapper script that will apply modifications if we
+know about them:
 
 ```bash
-# Install all supported modules
-inv modules.install
+bash
+./bin/crossenv_setup.sh
+source ./cross_venv/bin/activate
+
+# Build all supported modules
+inv -r crossenv modules.build
 
 # Install experimental modules
-inv modules.install --experimental
+inv -r crossenv modules.build --experimental
 
 # Install numpy
-inv modules.install --name numpy
+inv -r crossenv modules.build --name numpy
 
 # (Attempt) to install arbitrary module
-inv modules.install --name <module_name>
+inv -r crossenv modules.build --name <module_name>
+exit
 ```
 
 Libraries will then be installed to
-`cross_venv/cross/lib/python3.8/site-packages`.
+`cross_venv/cross/lib/python3.8/site-packages`. To install them in the Faasm
+sysroot, you can then run:
+
+```
+inv modules.install
+```
 
 #### Debugging module builds
 
