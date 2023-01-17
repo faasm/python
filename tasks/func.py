@@ -1,5 +1,3 @@
-from faasmtools.compile_util import wasm_cmake
-from faasmtools.env import WASM_DIR
 from faasmtools.build import FAASM_LOCAL_DIR
 from faasmtools.endpoints import (
     get_faasm_invoke_host_port,
@@ -12,47 +10,11 @@ from os.path import join
 from invoke import task
 from os import makedirs, listdir
 from shutil import copy
-from tasks.env import PROJ_ROOT
-
-FUNC_DIR = join(PROJ_ROOT, "func", "cpp")
-FUNC_BUILD_DIR = join(PROJ_ROOT, "build", "func")
-
-USER = "python"
-FUNC = "py_func"
-
-WASM_FILE = join(FUNC_BUILD_DIR, "py_func.wasm")
-DEST_FOLDER = join(WASM_DIR, USER, FUNC)
-DEST_FILE = join(DEST_FOLDER, "function.wasm")
+from tasks.env import CPYTHON_FUNC_USER, CPYTHON_FUNC_NAME, PROJ_ROOT
 
 FAASM_SHARED_STORAGE_ROOT = join(FAASM_LOCAL_DIR, "shared")
 PY_FUNC_DIR = join(PROJ_ROOT, "func", "python")
 PY_UPLOAD_DIR = join(FAASM_SHARED_STORAGE_ROOT, "pyfuncs", "python")
-
-
-@task(default=True, name="compile")
-def compile(ctx, clean=False, debug=False):
-    """
-    Compile the CPython function
-    """
-    # Build the wasm
-    wasm_cmake(FUNC_DIR, FUNC_BUILD_DIR, FUNC, clean, debug)
-
-    # Copy the wasm into place
-    makedirs(DEST_FOLDER, exist_ok=True)
-    copy(WASM_FILE, DEST_FILE)
-
-
-@task
-def upload(ctx):
-    """
-    Upload the CPython function
-    """
-    host, port = get_faasm_upload_host_port()
-    url = "http://{}:{}/f/{}/{}".format(host, port, USER, FUNC)
-    print("Uploading {}/{} to {}".format(USER, FUNC, url))
-    response = requests.put(url, data=open(WASM_FILE, "rb"))
-
-    print("Response ({}): {}".format(response.status_code, response.text))
 
 
 @task
@@ -94,13 +56,13 @@ def upload_all(ctx, local=False):
 @task
 def invoke(ctx, user, func, input_data=None):
     """
-    Invoke a function
+    Invoke a python function on a Faasm cluster
     """
     host, port = get_faasm_invoke_host_port()
     url = "http://{}:{}".format(host, port)
     data = {
-        "user": USER,
-        "function": FUNC,
+        "user": CPYTHON_FUNC_USER,
+        "function": CPYTHON_FUNC_NAME,
         "py_user": user,
         "py_func": func,
         "python": True,

@@ -1,6 +1,8 @@
 # Proj-specific
 build/
 cross_venv/
+venv/
+venv-bm/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

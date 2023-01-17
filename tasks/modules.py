@@ -41,7 +41,7 @@ def _clear_pyc_files(dir_path):
 
 
 @task(default=True)
-def copy(ctx):
+def install(ctx):
     """
     Copies the installed modules into the Faasm runtime root
     """

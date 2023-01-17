@@ -1,21 +1,21 @@
 from invoke import Collection
 
 from . import (
-    container,
     cpython,
+    docker,
+    format_code,
     func,
     git,
-    libs,
+    modules,
     mxnet,
-    runtime,
 )
 
 ns = Collection(
-    container,
     cpython,
+    docker,
+    format_code,
     func,
     git,
-    libs,
+    modules,
     mxnet,
-    runtime,
 )

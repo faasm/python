@@ -1,47 +1,55 @@
-FROM faasm/cpp-sysroot:0.1.6
+FROM faasm/cpp-sysroot:0.2.0
 ARG FAASM_PYTHON_VERSION
 
-RUN apt install -y \
-    libssl-dev \
-    ninja-build
+SHELL ["/bin/bash", "-c"]
+ENV PYTHON_DOCKER="on"
 
-# Hack to avoid rebuilding build CPython every time the code changes
-WORKDIR /tmp
-COPY bin/install_build_python.sh .
-RUN ./install_build_python.sh
+RUN apt update && apt install -y libssl-dev
 
-# Hack to avoid reinstalling Python libs every time
-COPY requirements.txt .
-RUN pip3 install -r requirements.txt
+# Clone code and submodules
+RUN mkdir -p /code \
+    && git clone \
+        -b v${FAASM_PYTHON_VERSION} \
+        https://github.com/faasm/python \
+        /code/python \
+    && cd /code/python \
+    && git submodule update --init -f third-party/cpp \
+    && git submodule update --init -f third-party/cpython \
+    && git submodule update --init -f third-party/crossenv \
+    && git config --global --add safe.directory /code/python
 
-# Clone current tag
-WORKDIR /code
-RUN git clone \
-    -b v${FAASM_PYTHON_VERSION} \
-    https://github.com/faasm/python
+# Cross-compile CPython to WASM and the python libraries
+RUN cd /code/python \
+    && ./bin/create_venv.sh \
+    && source ./venv/bin/activate \
+    # Buld and install a native CPython and a cross-compiled CPython with the
+    # same version. Also cross-compile the entrypoint function for CPython
+    && inv \
+        cpython.native \
+        cpython.wasm \
+        cpython.func
 
-# Submodules
-WORKDIR /code/python
-RUN git submodule update --init
+# Build cross-compiled python modules, including `pyfaasm`
+RUN cd /code/python \
+    && ./bin/crossenv_setup.sh \
+    && source ./cross_venv/bin/activate \
+    && pip3 install -r crossenv/requirements.txt \
+    && inv -r crossenv modules.build
 
-# Build CPython to wasm
-RUN inv cpython
+# Finally, install the cross-compiled Python modules
+RUN cd /code/python \
+    && source ./venv/bin/activate \
+    && inv modules.install
 
-# Set up crossenv
-RUN ./bin/crossenv_setup.sh
 
-# Install cross-compiled python packages
-RUN . ./cross_venv/bin/activate && inv libs.install
-
-# Build Faasm function
-RUN inv func
-
-# TODO - enable these once the MXNet/ Horovod work is completed
+# TODO: enable these once the MXNet/ Horovod work is completed
 # Build mxnet
 # RUN inv mxnet
 
-# Install experimental pacakges
+# TODO: Install experimental pacakges
 # RUN . ./cross_venv/bin/activate && inv libs.install --experimental
 
-# Copy files into place
-RUN inv runtime
+WORKDIR /code/python
+ENV TERM xterm-256color
+RUN sed -i 's/\/code\/cpp\/bin/\/code\/python\/bin/g' ~/.bashrc
+CMD ["/bin/bash", "-l"]

@@ -3,8 +3,8 @@
 This build cross-compiles CPython and a number of Python modules to WebAssembly
 for use in [Faasm](https://github.com/faasm/faasm).
 
-It also provides a [small Python library](pyfaasm/) which uses `ctypes` to
-support calls to the [Faasm host
+It also provides [`pyfaasm`, a small Python library](pyfaasm/) which uses
+`ctypes` to support calls to the [Faasm host
 interface](https://faasm.readthedocs.io/en/latest/source/host_interface.html).
 
 ## Development
@@ -14,169 +14,116 @@ environment](https://faasm.readthedocs.io/en/latest/source/development.html).
 
 You should only need the instructions below if you want to:
 
-- Modify the Faasm CPython runner.
-- Change the Faasm Python host interface (`pyfaasm`).
-- Add Python libraries to the Faasm environment.
+- [Modify the Faasm CPython runner](#building-cpython-and-libraries)
+- [Change the Faasm Python host interface (`pyfaasm`)](#change-the-python-host-interface).
+- [Add Python modules to the Faasm environment](#addding-python-modules-to-the-faasm-environment).
 
 ### Building CPython and libraries
 
-To set up your local environment, run the `python` CLI as per the Faasm docs,
-then:
+Faasm runs python code by cross-compiling the CPython runtime to WebAssembly,
+and adding a small entrypoint function to run Python code on the cross-compiled
+runtime.
+
+To cross-compile the CPython runtime, we first need to install a native CPython
+of the _exact_ same version:
 
 ```bash
-# Install a local dev version of the cpp tools
-pip3 uninstall faasmtools
-pip3 install -e third-party/cpp
+inv cpython.native
+```
 
-# Install the matching native python in your local env
-./bin/install_build_python.sh
+Then, you can cross-compile CPython from our [fork](
+https://github.com/faasm/cpython):
 
-# Compile CPython to wasm
-inv cpython
+```bash
+inv cpython.wasm
+```
 
-# Set up and activate cross-env
+This generates a static version of `libpython` that we link to the entrypoint
+function. To cross-compile this entrypoint function you can run:
+
+```bash
+inv cpython.func
+```
+
+### Change the Python host interface
+
+Faasm provides a small python library, `pyfaasm` so that functions written in
+Python (which are _not_ cross-compiled to WebAssembly) can communicate with the
+Faasm runtime.
+
+To install `pyfaasm` we need to use the same `pip` version we installed
+natively (and cross-compiled) as part of the CPython build in the previous
+section. Setuptools and distutils, pip's tooling to install libraries,
+interrogate the system environment during the library install process. This
+makes it quite difficult to install `pyfaasm` at the right location, using the
+right version of `pip`. We use [crossenv](https://github.com/benfogle/crossenv)
+to help with that.
+
+To install `pyfaasm` we need to activate the `crossenv` virtual environment, we
+do so in a separate shell inside the container for simplicity:
+
+```bash
+bash
 ./bin/crossenv_setup.sh
-
-# Activate cross-env
-. cross_venv/bin/activate
-
-# Build Python libraries
-inv libs.install
-
-# Copy runtime files into place
-inv runtime
-
-# Build the Faasm function to wrap CPython
-inv func
-
-# Copy the actual Python functions into place
-inv func.upload-all --local
+source ./cross_venv/bin/activate
+pip3 install -r crossenv/requirements.txt
+inv -r crossenv modules.build
+exit
 ```
 
-## Code changes
+To use the `pyfaasm` library in Faasm, we still need to copy the installed
+files to the right runtime location:
 
-The CPython build uses this slightly modified [fork of
-CPython](https://github.com/faasm/cpython/tree/faasm).
-
-To see the changes made to CPython, see [this
-compare](https://github.com/python/cpython/compare/v3.8.2...faasm:faasm).
-
-A similar (small) list of changes for numpy can be seen
-[here](https://github.com/numpy/numpy/compare/v1.19.2...faasm:faasm).
-
-CPython is built statically, some notes on this process can be found
-[here](https://wiki.python.org/moin/BuildStatically).
-
-Several of the code changes to CPython and numpy were borrowed from
-[pyodide](https://github.com/iodide-project/pyodide).
-
-## Releasing
-
-This repo gets built as a container, `faasm/cpython`. If you want to release a
-new version, you can:
-
-- Update the version in `VERSION` and `.github/workflows/tests.yml`
-- Commit to your branch
-- Run `inv git.tag`
-- Check the release build has run
-- Create a pull request
-
-## Set-up notes
-
-We highly recommend using the containerised approach above. Everything
-discuessed below is already set up in the container environment, and these notes
-are only useful when debugging or upgrading parts of the build.
-
-### CPython on the build machine/ container
-
-To cross-compile CPython and C-extensions, we need a version of Python on the
-build machine that _exactly_ matches the version of CPython we're building.
-This is handled with the `install_build_python.sh` script.
-
-This will install Python at `/usr/local/faasm/python3.8`.
-
-When cross-compiling we _have_ to use this Python when running commands and
-scripts on the build machine (not any other Python that might be installed).
-
-### Upgrading Pip
-
-Do **not** upgrade Pip in the build machine copy of Python.
-
-The versions of Pip and Python for wasm and the build machine must match
-exactly.
-
-### Building CPython to WebAssembly
-
-You can build CPython by running (with optional `--clean`):
-
-```
-inv cpython
+```bash
+inv modules.install
 ```
 
-The result is installed at `third-party/cpython/install/wasm`.
-
-We provide a [Setup.local](third-party/cpython/Modules/Setup.local) file, which
-specifies which standard CPython modules will be built statically.
-
-At the end of the CPython build, it will print out a list of which modules have
-been successfully built and which have failed. Note that many of the standard
-library modules will fail in this build, but the ones we need should succeed.
-
-## Cross-compilation set-up
-
-Setuptools and distutils both interrogate the Python system environment during
-the build process. This makes it quite difficult to cross-compile libraries, so
-we use [crossenv](https://github.com/benfogle/crossenv).
-
-See the dev instructions above for set-up.
-
-### Changing the crossenv environment
+### Adding Python modules to the Faasm environment
 
 Crossenv picks up the cross-compilation environment from the CPython
-build artifacts. Therefore, to make changes to the cross-compilation
-environment:
-
-- Modify the CPython build (see `tasks.py`)
-- Rerun the CPython build (`inv cpython --clean`)
-- Rebuild the crossenv (`./bin/crossenv_setup.sh`)
-- Enter the crossenv and inspect the environment with `bin/sanity_check.py`
-
-## Modules
-
-With the crossenv activated, we can build modules with normal `pip`.
-
-There is a wrapper script that will apply modifications if we know about them.
-To run this you must first have the cross-env activated as described above.
+build artifacts. With the crossenv activated, we can build modules with normal
+`pip`. However, there is a wrapper script that will apply modifications if we
+know about them:
 
 ```bash
-# Install all supported modules
-inv libs.install
+bash
+./bin/crossenv_setup.sh
+source ./cross_venv/bin/activate
+
+# Build all supported modules
+inv -r crossenv modules.build
 
 # Install experimental modules
-inv libs.install --experimental
+inv -r crossenv modules.build --experimental
 
 # Install numpy
-inv libs.install --name numpy
+inv -r crossenv modules.build --name numpy
 
 # (Attempt) to install arbitrary module
-inv libs.install --name <module_name>
+inv -r crossenv modules.build --name <module_name>
+exit
 ```
 
 Libraries will then be installed to
-`cross_venv/cross/lib/python3.8/site-packages`.
+`cross_venv/cross/lib/python3.8/site-packages`. To install them in the Faasm
+sysroot, you can then run:
 
-### Debugging module builds
+```
+inv modules.install
+```
+
+#### Debugging module builds
 
 You can debug module builds by running `python setup.py install` through your
 debugger.
 
 You can also set `DISTUTILS_DEBUG=1` to get distutils to print more info.
 
-## Experimental modules
+#### Experimental modules
 
 Some of the modules are experimental, these may require some extra set-up.
 
-### MXNet and Horovod
+##### MXNet and Horovod
 
 To install the Python MXNet module we first need to cross-compile the MXNet
 shared library:
@@ -201,7 +148,7 @@ inv libs.install --name mxnet
 inv libs.install --name horovod
 ```
 
-### Cleaning and uninstalling
+To clean and uninstall:
 
 ```
 # Clean then rebuild
@@ -211,8 +158,46 @@ inv mxnet --clean
 inv mxnet.uninstall
 ```
 
-## BLAS and LAPACK
+##### Numpy
 
-Faasm's normal BLAS and LAPACK support using CLAPACK should be picked up by
-numpy due to the addition of the [site.cfg](../third-party/numpy/site.cfg).
-(note 19/03/21 this has been temporarily disabled).
+Faasm's NumPy build relies on BLAS and LAPACK support. The right cross-compiled
+libraries should be picked up by numpy due to the addition of the [site.cfg
+](../third-party/numpy/site.cfg).
+
+> 22/12/2022 - NumPy support is currently broken
+
+## Code changes
+
+The CPython build uses this slightly modified [fork of
+CPython](https://github.com/faasm/cpython/tree/faasm).
+
+To see the changes made to CPython, see [this
+compare](https://github.com/python/cpython/compare/v3.8.2...faasm:faasm).
+
+A similar (small) list of changes for numpy can be seen
+[here](https://github.com/numpy/numpy/compare/v1.19.2...faasm:faasm).
+
+CPython is built statically, some notes on this process can be found
+[here](https://wiki.python.org/moin/BuildStatically).
+
+Several of the code changes to CPython and numpy were borrowed from
+[pyodide](https://github.com/iodide-project/pyodide).
+
+## Releasing
+
+This repo gets built as a container, `faasm/cpython`. If you want to release a
+new version, you can:
+
+- Bump the code version with: `inv git.bump`
+- Commit to your branch
+- Run `inv git.tag`
+- Check the release build has run
+- Create a pull request
+
+The release build will generate a docker image with the new tag. You can also
+trigger the image build manually with:
+
+```bash
+inv docker.build [--push] [--nocache]
+```
+

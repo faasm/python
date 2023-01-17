@@ -8,31 +8,30 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
 
 jobs:
+  # Cancel previous running actions for the same PR
+  cancel_previous:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Workflow Action
+        uses: styfle/cancel-workflow-action@0.11.0
+
   formatting:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-20.04
     container:
-      image: faasm/cpython:0.1.1
-    defaults:
-      run:
-        working-directory: /code/python
+      image: faasm/cpython:0.2.0
     steps:
-      - name: "Fetch all"
-        run: git fetch --all
-      - name: "Fetch ref"
-        run: git fetch origin ${GITHUB_REF}:ci-branch
-      - name: "Check out branch"
-        run: git checkout --force ci-branch
-      - name: "Update cpp submodule"
-        run: git submodule update third-party/cpp
-      - name: "Install requirements"
-        run: pip3 install -r requirements.txt
-      - name: "Python formatting check"
-        run: ./bin/check_python.sh
-      - name: "Check C/C++ formatting"
-        run: ./bin/run_clang_format.sh
-      - name: "Check no formatting changes"
-        run: git diff --exit-code
+      - name: "Fetch code"
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+        # We need to set the safe git directory as formatting relies on git-ls
+        # See actions/checkout#766
+      - name: "Set the GH workspace as a safe git directory"
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: "Check formatting"
+        run: ./bin/inv_wrapper.sh format-code --check
 
   build:
     if: github.event.pull_request.draft == false
@@ -42,23 +41,16 @@ jobs:
       REDIS_QUEUE_HOST: redis
       REDIS_STATE_HOST: redis
     container:
-      image: faasm/cpython:0.1.1
-    defaults:
-      run:
-        working-directory: /code/python
+      image: faasm/cpython:0.2.0
     services:
       redis:
         image: redis
     steps:
-      - name: "Fetch all"
-        run: git fetch --all
-      - name: "Fetch ref"
-        run: git fetch origin ${GITHUB_REF}:ci-branch
-      - name: "Check out branch"
-        run: git checkout --force ci-branch
-      - name: "Install requirements"
-        run: pip3 install -r requirements.txt
+      - name: "Fetch code"
+        uses: actions/checkout@v3
+        with:
+          submodules: true
       - name: "Build Python function"
-        run: inv func
+        run: ./bin/inv_wrapper.sh cpython.func
       - name: "Check copying Python functions locally"
-        run: inv func.upload-all --local
+        run: ./bin/inv_wrapper.sh func.upload-all --local

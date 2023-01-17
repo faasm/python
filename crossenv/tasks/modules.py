@@ -1,25 +1,33 @@
 import os
 
 from copy import copy
-from faasmtools.build import WASM_LIB_INSTALL, CMAKE_TOOLCHAIN_FILE
+from tasks.env import (
+    CMAKE_TOOLCHAIN_FILE,
+    CROSSENV_DIR,
+    PROJ_ROOT,
+    THIRD_PARTY_DIR,
+    USABLE_CPUS,
+    WASM_LIB_INSTALL,
+)
 from os.path import join
 from subprocess import run
-from tasks.env import USABLE_CPUS, THIRD_PARTY_DIR, CROSSENV_DIR, PROJ_ROOT
 from invoke import task, Failure
 
 MXNET_LIB = join(WASM_LIB_INSTALL, "libmxnet.so")
 
 # Modified libs
 MODIFIED_LIBS = {
-    "numpy": {
-        "env": {"NPY_NUM_BUILD_JOBS": USABLE_CPUS},
-    },
     "pyfaasm": {
         "dir": join(PROJ_ROOT, "pyfaasm"),
     },
 }
 
 MODIFIED_LIBS_EXPERIMENTAL = {
+    # 15/11/2022 - Move Numpy back to experimental as either the upgrades
+    # to the CPP toolchain or LLVM 13 break the build
+    "numpy": {
+        "env": {"NPY_NUM_BUILD_JOBS": USABLE_CPUS},
+    },
     "horovod": {
         "env": {
             "MAKEFLAGS": "-j{}".format(USABLE_CPUS),
@@ -84,7 +92,7 @@ def show(ctx):
 
 
 @task
-def install(ctx, name=None, experimental=False):
+def build(ctx, name=None, experimental=False):
     """
     Install cross-compiled libraries
     """
