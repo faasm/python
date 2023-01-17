@@ -51,7 +51,8 @@ MODIFIED_LIBS_ALL.update(MODIFIED_LIBS_EXPERIMENTAL)
 
 # Libs that can be installed directly from PyPI
 PYPI_LIBS = [
-    "dulwich",
+    # 17/01/2023 - dulwhich package installation is broken
+    # "dulwich",
     "Genshi",
     "pyaes",
     "pyperf",
