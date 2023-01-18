@@ -18,7 +18,7 @@ jobs:
 
   formatting:
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     container:
       image: faasm/cpython:0.2.2
     steps:
@@ -35,7 +35,7 @@ jobs:
 
   build:
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     env:
       HOST_TYPE: ci
       REDIS_QUEUE_HOST: redis
