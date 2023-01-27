@@ -1,4 +1,4 @@
-FROM faasm/cpp-sysroot:0.2.0
+FROM faasm/cpp-sysroot:0.2.1
 ARG FAASM_PYTHON_VERSION
 
 SHELL ["/bin/bash", "-c"]
