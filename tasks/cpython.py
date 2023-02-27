@@ -3,6 +3,7 @@ from faasmtools.build import (
     FAASM_BUILD_ENV_DICT,
     WASM_HEADER_INSTALL,
     WASM_LIB_INSTALL,
+    WASM_WASI_LIBC_LDFLAGS,
     build_config_cmd,
 )
 from faasmtools.compile_util import wasm_cmake, wasm_copy_upload
@@ -96,7 +97,8 @@ def wasm(ctx, clean=False, noconf=False, nobuild=False):
     # relevant in the module builds.
 
     # Link in extra wasi-libc long double support (see wasi-libc docs)
-    link_libs = "-lc-printscan-long-double -lfaasm"
+    link_libs = ["-lfaasm"] + WASM_WASI_LIBC_LDFLAGS
+    link_libs = " ".join(link_libs)
 
     # Configure
     configure_cmd = build_config_cmd(
