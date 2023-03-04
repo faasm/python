@@ -34,4 +34,6 @@ pushd ${PROJ_ROOT}/third-party/cpp
 pip_cmd install -e .
 popd >> /dev/null
 
+touch ${VENV_PATH}/faasm_venv.BUILT
+
 popd >> /dev/null
