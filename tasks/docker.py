@@ -1,17 +1,16 @@
-from invoke import task
-from os.path import join
-
 from faasmtools.docker import (
+    ACR_NAME,
     build_container,
     push_container,
 )
-
+from invoke import task
+from os.path import join
 from tasks.env import (
     PROJ_ROOT,
     get_version,
 )
 
-CONTAINER_IMAGE = "faasm/cpython"
+CONTAINER_IMAGE = "{}/cpython".format(ACR_NAME)
 DOCKERFILE = join(PROJ_ROOT, "Dockerfile")
 
 
