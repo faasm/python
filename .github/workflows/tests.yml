@@ -20,7 +20,10 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     container:
-      image: faasm/cpython:0.2.5
+      image: faasm.azurecr.io/cpython:0.2.5
+      credentials:
+        username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
+        password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
     steps:
       - name: "Fetch code"
         uses: actions/checkout@v3
@@ -41,7 +44,10 @@ jobs:
       REDIS_QUEUE_HOST: redis
       REDIS_STATE_HOST: redis
     container:
-      image: faasm/cpython:0.2.5
+      image: faasm.azurecr.io/cpython:0.2.5
+      credentials:
+        username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
+        password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
     services:
       redis:
         image: redis
