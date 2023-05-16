@@ -6,6 +6,7 @@ from faasmtools.endpoints import (
 )
 
 import requests
+from base64 import b64encode
 from os.path import join
 from invoke import task
 from os import makedirs, listdir
@@ -69,7 +70,9 @@ def invoke(ctx, user, func, input_data=None):
     }
 
     if input_data:
-        data["input_data"] = input_data
+        data["input_data"] = b64encode(input_data.encode("utf-8")).decode(
+            "utf-8"
+        )
 
     headers = get_knative_headers()
     response = requests.post(url, json=data, headers=headers)
