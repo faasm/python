@@ -1,5 +1,5 @@
 from copy import copy as deep_copy
-from faasmctl.utils.upload import upload_wasm
+from faasmctl.util.upload import upload_wasm
 from faasmtools.build import (
     FAASM_BUILD_ENV_DICT,
     WASM_HEADER_INSTALL,
@@ -13,7 +13,6 @@ from invoke import task
 from os import environ, makedirs
 from os.path import join, exists
 from re import compile
-from requests import put
 from shutil import copy, copytree, rmtree
 from subprocess import run
 from tasks.env import (
