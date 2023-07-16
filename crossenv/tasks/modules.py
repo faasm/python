@@ -55,8 +55,9 @@ PYPI_LIBS = [
     # "dulwich",
     "Genshi",
     "pyaes",
-    "pyperf",
-    "pyperformance",
+    # 16/07/2023 - pyperf and pyperformance installation suddendly broken
+    # "pyperf",
+    # "pyperformance",
     "six",
 ]
 
