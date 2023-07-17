@@ -1,15 +1,10 @@
-from faasmtools.build import FAASM_LOCAL_DIR
-from faasmtools.endpoints import (
-    get_faasm_invoke_host_port,
-    get_faasm_upload_host_port,
-    get_knative_headers,
-)
-
-import requests
 from base64 import b64encode
-from os.path import join
+from faasmctl.util.invoke import invoke_wasm
+from faasmctl.util.upload import upload_python
+from faasmtools.build import FAASM_LOCAL_DIR
 from invoke import task
 from os import makedirs, listdir
+from os.path import join
 from shutil import copy
 from tasks.env import CPYTHON_FUNC_USER, CPYTHON_FUNC_NAME, PROJ_ROOT
 
@@ -23,7 +18,6 @@ def uploadpy(ctx, func, local=False):
     """
     Upload the given Python function
     """
-    host, port = get_faasm_upload_host_port()
     src_file = join(PY_FUNC_DIR, "{}.py".format(func))
 
     if local:
@@ -35,10 +29,7 @@ def uploadpy(ctx, func, local=False):
         print("Copying function {} {} -> {}".format(func, src_file, dest_file))
         copy(src_file, dest_file)
     else:
-        url = "http://{}:{}/p/{}/{}".format(host, port, "python", func)
-        response = requests.put(url, data=open(src_file, "rb"))
-
-        print("Response ({}): {}".format(response.status_code, response.text))
+        upload_python(func, src_file)
 
 
 @task
@@ -59,8 +50,6 @@ def invoke(ctx, user, func, input_data=None):
     """
     Invoke a python function on a Faasm cluster
     """
-    host, port = get_faasm_invoke_host_port()
-    url = "http://{}:{}".format(host, port)
     data = {
         "user": CPYTHON_FUNC_USER,
         "function": CPYTHON_FUNC_NAME,
@@ -74,11 +63,7 @@ def invoke(ctx, user, func, input_data=None):
             "utf-8"
         )
 
-    headers = get_knative_headers()
-    response = requests.post(url, json=data, headers=headers)
+    # Invoke message
+    response = invoke_wasm(data)
 
-    if response.status_code != 200:
-        print("Error ({}):\n{}".format(response.status_code, response.text))
-        exit(1)
-
-    print("Success:\n{}".format(response.text))
+    print("Success:\n{}".format(response.messageResults[0].outputData))
