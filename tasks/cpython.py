@@ -1,4 +1,5 @@
 from copy import copy as deep_copy
+from faasmctl.util.upload import upload_wasm
 from faasmtools.build import (
     FAASM_BUILD_ENV_DICT,
     WASM_HEADER_INSTALL,
@@ -7,13 +8,11 @@ from faasmtools.build import (
     build_config_cmd,
 )
 from faasmtools.compile_util import wasm_cmake, wasm_copy_upload
-from faasmtools.endpoints import get_faasm_upload_host_port
 from faasmtools.env import WASM_DIR
 from invoke import task
 from os import environ, makedirs
 from os.path import join, exists
 from re import compile
-from requests import put
 from shutil import copy, copytree, rmtree
 from subprocess import run
 from tasks.env import (
@@ -240,18 +239,7 @@ def upload(ctx):
     """
     Upload the CPython function
     """
-    host, port = get_faasm_upload_host_port()
     wasm_file = join(
         WASM_DIR, CPYTHON_FUNC_USER, CPYTHON_FUNC_NAME, "function.wasm"
     )
-    url = "http://{}:{}/f/{}/{}".format(
-        host, port, CPYTHON_FUNC_USER, CPYTHON_FUNC_NAME
-    )
-    print(
-        "Uploading {}/{} to {}".format(
-            CPYTHON_FUNC_USER, CPYTHON_FUNC_NAME, url
-        )
-    )
-    response = put(url, data=open(wasm_file, "rb"))
-
-    print("Response ({}): {}".format(response.status_code, response.text))
+    upload_wasm(CPYTHON_FUNC_USER, CPYTHON_FUNC_NAME, wasm_file)
