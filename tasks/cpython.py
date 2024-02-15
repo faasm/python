@@ -8,7 +8,7 @@ from faasmtools.build import (
     build_config_cmd,
 )
 from faasmtools.compile_util import wasm_cmake, wasm_copy_upload
-from faasmtools.env import WASM_DIR
+from faasmtools.env import LLVM_VERSION, WASM_DIR
 from invoke import task
 from os import environ, makedirs
 from os.path import join, exists
@@ -187,12 +187,13 @@ def native(ctx, clean=False):
     run("wget {}".format(tar_url), shell=True, check=True, cwd=workdir)
     run("tar -xf {}".format(tar_name), shell=True, check=True, cwd=workdir)
 
+    llvm_version_major = LLVM_VERSION.split(".")[0]
     workdir = join(workdir, PYTHON_VERSION)
     native_configure_cmd = [
-        'CC="clang-13"',
-        'CXX="clang++-13"',
+        'CC="clang-{}"'.format(llvm_version_major),
+        'CXX="clang++-{}"'.format(llvm_version_major),
         'CFLAGS="-O3 -DANSI"',
-        'LD="clang-13"',
+        'LD="clang-{}"'.format(llvm_version_major),
         "./configure",
         "--prefix={}".format(PYTHON_INSTALL_DIR),
     ]
