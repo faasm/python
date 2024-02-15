@@ -41,11 +41,6 @@ RUN cd /code/python \
     && source ./venv/bin/activate \
     && inv modules.install
 
-
-# TODO: enable these once the MXNet/ Horovod work is completed
-# Build mxnet
-# RUN inv mxnet
-
 # TODO: Install experimental pacakges
 # RUN . ./cross_venv/bin/activate && inv libs.install --experimental
 
