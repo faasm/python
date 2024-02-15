@@ -25,6 +25,7 @@ MODIFIED_LIBS = {
 MODIFIED_LIBS_EXPERIMENTAL = {
     # 15/11/2022 - Move Numpy back to experimental as either the upgrades
     # to the CPP toolchain or LLVM 13 break the build
+    # (experimental <=> not yet supported)
     "numpy": {
         "env": {"NPY_NUM_BUILD_JOBS": USABLE_CPUS},
     },
