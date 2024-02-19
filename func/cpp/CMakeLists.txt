@@ -4,10 +4,15 @@ project(faasm-func)
 set(CMAKE_CXX_STANDARD 17)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "WASI")
+    # Set the right target so that we look in the right sysroot
+    set(CMAKE_C_FLAGS "--target=$ENV{FAASM_WASM_TRIPLE} ${CMAKE_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "--target=$ENV{FAASM_WASM_TRIPLE} ${CMAKE_CXX_FLAGS}")
+
     # For Faasm functions, we add `_faasm_zygote` as an exported symbol
     set(CMAKE_EXE_LINKER_FLAGS
         "${CMAKE_EXE_LINKER_FLAGS} -Xlinker --export=_faasm_zygote"
     )
+
     message(STATUS "Detected wasm build (sysroot=$ENV{FAASM_WASM_SYSROOT})")
     set(CMAKE_EXECUTABLE_SUFFIX ".wasm")
 endif ()
