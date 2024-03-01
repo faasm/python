@@ -1,5 +1,4 @@
-extern "C"
-{
+extern "C" {
 #include "pyinit.h"
 }
 
@@ -21,8 +20,7 @@ extern "C"
  * Returns the relevant Python entry function. We need to invoke different
  * functions depending on which Faasm function index we're dealing with.
  */
-const char* getPythonFunctionName()
-{
+const char* getPythonFunctionName() {
     char* entryFunc = faasmGetPythonEntry();
 
     if (strlen(entryFunc) == 0) {
@@ -36,8 +34,7 @@ const char* getPythonFunctionName()
  * Returns the working dir we need to be in to import the Python module
  * for the required function.
  */
-const char* getPythonWorkingDir(const char* user, const char* funcName)
-{
+const char* getPythonWorkingDir(const char* user, const char* funcName) {
     auto workingDir = new char[60];
 
 #ifdef __wasm__
@@ -53,8 +50,7 @@ const char* getPythonWorkingDir(const char* user, const char* funcName)
  * Returns the name of the python module to execute. If executing in wasm this
  * will be different to when executing natively.
  */
-const char* getPythonModuleName(const char* funcName)
-{
+const char* getPythonModuleName(const char* funcName) {
 #ifdef __wasm__
     return "function";
 #else
@@ -65,8 +61,7 @@ const char* getPythonModuleName(const char* funcName)
 /**
  * Initialise CPython using a Faasm zygote to avoid doing so repeatedly
  */
-FAASM_ZYGOTE()
-{
+FAASM_ZYGOTE() {
     Py_InitializeEx(0);
 
     // 21/12/2022 - Numpy support is broken
@@ -95,8 +90,7 @@ FAASM_ZYGOTE()
     return 0;
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     // With this line uncommented, this file can be run as a normal executable
     // for testing setEmulatedMessageFromJson(R"({"user": "python", "function":
     // "py_func", "py_user": "python", "py_func": "lang_test", "py_entry":

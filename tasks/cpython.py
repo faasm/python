@@ -1,9 +1,6 @@
 from copy import copy as deep_copy
 from faasmctl.util.upload import upload_wasm
-from faasmtools.build import (
-    build_config_cmd,
-    get_faasm_build_env_dict
-)
+from faasmtools.build import build_config_cmd, get_faasm_build_env_dict
 from faasmtools.compile_util import wasm_cmake, wasm_copy_upload
 from faasmtools.env import LLVM_NATIVE_VERSION, WASM_DIR
 from invoke import task
@@ -57,7 +54,9 @@ LIB_SRC_DIR = join(CPYTHON_INSTALL_DIR, "lib")
 LIB_DEST_DIR = join(FAASM_RUNTIME_ROOT, "lib")
 
 LIBPYTHON_SRC_PATH = join(LIB_SRC_DIR, "libpython3.8.a")
-LIBPYTHON_DEST_PATH = join(ENV_VARS["FAASM_WASM_LIB_INSTALL_DIR"], "libpython3.8.a")
+LIBPYTHON_DEST_PATH = join(
+    ENV_VARS["FAASM_WASM_LIB_INSTALL_DIR"], "libpython3.8.a"
+)
 
 INCLUDE_SRC_DIR = join(CPYTHON_INSTALL_DIR, "include", "python3.8")
 INCLUDE_DEST_DIR = join(ENV_VARS["FAASM_WASM_HEADER_INSTALL_DIR"], "python3.8")
@@ -233,7 +232,14 @@ def func(ctx, clean=False, debug=False):
     wasm_file = join(func_build_dir, "{}.wasm".format(CPYTHON_FUNC_NAME))
 
     # Build and install the wasm
-    wasm_cmake(func_dir, func_build_dir, CPYTHON_FUNC_NAME, clean, debug, is_threads=True)
+    wasm_cmake(
+        func_dir,
+        func_build_dir,
+        CPYTHON_FUNC_NAME,
+        clean,
+        debug,
+        is_threads=True,
+    )
     wasm_copy_upload(CPYTHON_FUNC_USER, CPYTHON_FUNC_NAME, wasm_file)
 
 
