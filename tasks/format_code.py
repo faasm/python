@@ -1,4 +1,4 @@
-from faasmtools.env import LLVM_VERSION
+from faasmtools.env import LLVM_NATIVE_VERSION
 from invoke import task
 from tasks.env import PROJ_ROOT
 from subprocess import run
@@ -52,7 +52,7 @@ def format(ctx, check=False):
     )
 
     clang_cmd = [
-        "clang-format-{}".format(LLVM_VERSION.split(".")[0]),
+        "clang-format-{}".format(LLVM_NATIVE_VERSION.split(".")[0]),
         "--dry-run --Werror" if check else "-i",
         "-style=file",
         " ".join(files_to_check),

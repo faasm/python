@@ -74,7 +74,8 @@
     fprintf(devNull, "%p", trunc##sfx);                                        \
     fprintf(devNull, "%p", rint##sfx);
 
-void setUpPyNumpy() {
+void setUpPyNumpy()
+{
     FILE* devNull = fopen("/dev/null", "w");
 
     // Maths
