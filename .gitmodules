@@ -2,21 +2,9 @@
     path = third-party/cpython
     url = https://github.com/faasm/cpython
     branch = faasm
-[submodule "third-party/numpy"]
-    path = third-party/numpy
-    url = https://github.com/faasm/numpy
-    branch = faasm
 [submodule "third-party/crossenv"]
     path = third-party/crossenv
     url = https://github.com/faasm/crossenv
-    branch = faasm
-[submodule "third-party/horovod"]
-    path = third-party/horovod
-    url = https://github.com/faasm/horovod
-    branch = faasm
-[submodule "third-party/mxnet"]
-    path = third-party/mxnet
-    url = https://github.com/faasm/incubator-mxnet
     branch = faasm
 [submodule "third-party/cpp"]
     path = third-party/cpp

@@ -1,14 +1,8 @@
 from copy import copy as deep_copy
 from faasmctl.util.upload import upload_wasm
-from faasmtools.build import (
-    FAASM_BUILD_ENV_DICT,
-    WASM_HEADER_INSTALL,
-    WASM_LIB_INSTALL,
-    WASM_WASI_LIBC_LDFLAGS,
-    build_config_cmd,
-)
+from faasmtools.build import build_config_cmd, get_faasm_build_env_dict
 from faasmtools.compile_util import wasm_cmake, wasm_copy_upload
-from faasmtools.env import WASM_DIR
+from faasmtools.env import LLVM_NATIVE_VERSION, WASM_DIR
 from invoke import task
 from os import environ, makedirs
 from os.path import join, exists
@@ -54,16 +48,18 @@ ENV_VARS.update(
         "PATH": PATH_ENV_VAR,
     }
 )
-ENV_VARS.update(FAASM_BUILD_ENV_DICT)
+ENV_VARS.update(get_faasm_build_env_dict(is_threads=True))
 
 LIB_SRC_DIR = join(CPYTHON_INSTALL_DIR, "lib")
 LIB_DEST_DIR = join(FAASM_RUNTIME_ROOT, "lib")
 
 LIBPYTHON_SRC_PATH = join(LIB_SRC_DIR, "libpython3.8.a")
-LIBPYTHON_DEST_PATH = join(WASM_LIB_INSTALL, "libpython3.8.a")
+LIBPYTHON_DEST_PATH = join(
+    ENV_VARS["FAASM_WASM_LIB_INSTALL_DIR"], "libpython3.8.a"
+)
 
 INCLUDE_SRC_DIR = join(CPYTHON_INSTALL_DIR, "include", "python3.8")
-INCLUDE_DEST_DIR = join(WASM_HEADER_INSTALL, "python3.8")
+INCLUDE_DEST_DIR = join(ENV_VARS["FAASM_WASM_HEADER_INSTALL_DIR"], "python3.8")
 
 # See the CPython docs for more info:
 # - General: https://devguide.python.org/setup/#compile-and-build
@@ -96,21 +92,26 @@ def wasm(ctx, clean=False, noconf=False, nobuild=False):
     # relevant in the module builds.
 
     # Link in extra wasi-libc long double support (see wasi-libc docs)
-    link_libs = ["-lfaasm"] + WASM_WASI_LIBC_LDFLAGS
-    link_libs = " ".join(link_libs)
+    link_libs = "-lfaasm " + ENV_VARS["FAASM_WASM_STATIC_LINKER_FLAGS"]
+    # link_libs = " ".join(link_libs)
 
     # Configure
     configure_cmd = build_config_cmd(
+        ENV_VARS,
         [
             "CONFIG_SITE=./config.site",
             "READELF=true",
             "./configure",
             'LIBS="{}"'.format(link_libs),
+            "--build=wasm32",
+            "--host={}".format(ENV_VARS["FAASM_WASM_TRIPLE"]),
             "--disable-ipv6",
             "--disable-shared",
             "--prefix={}".format(CPYTHON_INSTALL_DIR),
             "--with-system-ffi",
-        ]
+        ],
+        # Do not set the --host flag as we want to use the wasi-threads target
+        conf_args=False,
     )
 
     if not noconf:
@@ -133,8 +134,8 @@ def wasm(ctx, clean=False, noconf=False, nobuild=False):
     _run_cpython_cmd("bininstall", ["make", "bininstall"])
 
     # Prepare destinations
-    makedirs(WASM_HEADER_INSTALL, exist_ok=True)
-    makedirs(WASM_LIB_INSTALL, exist_ok=True)
+    makedirs(ENV_VARS["FAASM_WASM_HEADER_INSTALL_DIR"], exist_ok=True)
+    makedirs(ENV_VARS["FAASM_WASM_LIB_INSTALL_DIR"], exist_ok=True)
 
     rmtree(INCLUDE_DEST_DIR, ignore_errors=True)
 
@@ -187,12 +188,13 @@ def native(ctx, clean=False):
     run("wget {}".format(tar_url), shell=True, check=True, cwd=workdir)
     run("tar -xf {}".format(tar_name), shell=True, check=True, cwd=workdir)
 
+    llvm_native_version_major = LLVM_NATIVE_VERSION.split(".")[0]
     workdir = join(workdir, PYTHON_VERSION)
     native_configure_cmd = [
-        'CC="clang-13"',
-        'CXX="clang++-13"',
+        'CC="clang-{}"'.format(llvm_native_version_major),
+        'CXX="clang++-{}"'.format(llvm_native_version_major),
         'CFLAGS="-O3 -DANSI"',
-        'LD="clang-13"',
+        'LD="clang-{}"'.format(llvm_native_version_major),
         "./configure",
         "--prefix={}".format(PYTHON_INSTALL_DIR),
     ]
@@ -230,7 +232,14 @@ def func(ctx, clean=False, debug=False):
     wasm_file = join(func_build_dir, "{}.wasm".format(CPYTHON_FUNC_NAME))
 
     # Build and install the wasm
-    wasm_cmake(func_dir, func_build_dir, CPYTHON_FUNC_NAME, clean, debug)
+    wasm_cmake(
+        func_dir,
+        func_build_dir,
+        CPYTHON_FUNC_NAME,
+        clean,
+        debug,
+        is_threads=True,
+    )
     wasm_copy_upload(CPYTHON_FUNC_USER, CPYTHON_FUNC_NAME, wasm_file)
 
 

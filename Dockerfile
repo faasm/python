@@ -1,4 +1,4 @@
-FROM faasm.azurecr.io/cpp-sysroot:0.2.4
+FROM faasm.azurecr.io/cpp-sysroot:0.4.0
 ARG FAASM_PYTHON_VERSION
 
 SHELL ["/bin/bash", "-c"]
@@ -40,11 +40,6 @@ RUN cd /code/python \
 RUN cd /code/python \
     && source ./venv/bin/activate \
     && inv modules.install
-
-
-# TODO: enable these once the MXNet/ Horovod work is completed
-# Build mxnet
-# RUN inv mxnet
 
 # TODO: Install experimental pacakges
 # RUN . ./cross_venv/bin/activate && inv libs.install --experimental
