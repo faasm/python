@@ -1,5 +1,5 @@
 from faasmtools.docker import (
-    ACR_NAME,
+    CR_NAME,
     build_container,
     push_container,
 )
@@ -10,7 +10,7 @@ from tasks.env import (
     get_version,
 )
 
-CONTAINER_IMAGE = "{}/cpython".format(ACR_NAME)
+CONTAINER_IMAGE = "{}/cpython".format(CR_NAME)
 DOCKERFILE = join(PROJ_ROOT, "Dockerfile")
 
 
