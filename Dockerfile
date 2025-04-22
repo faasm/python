@@ -1,4 +1,4 @@
-FROM faasm.azurecr.io/cpp-sysroot:0.4.0
+FROM ghcr.io/faasm/cpp-sysroot:0.4.0
 ARG FAASM_PYTHON_VERSION
 
 SHELL ["/bin/bash", "-c"]

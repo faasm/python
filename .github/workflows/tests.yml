@@ -20,13 +20,10 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     container:
-      image: faasm.azurecr.io/cpython:0.4.0
-      credentials:
-        username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
-        password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
+      image: ghcr.io/faasm/cpython:0.4.0
     steps:
       - name: "Fetch code"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
         # We need to set the safe git directory as formatting relies on git-ls
@@ -44,16 +41,13 @@ jobs:
       REDIS_QUEUE_HOST: redis
       REDIS_STATE_HOST: redis
     container:
-      image: faasm.azurecr.io/cpython:0.4.0
-      credentials:
-        username: ${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}
-        password: ${{ secrets.ACR_SERVICE_PRINCIPAL_PASSWORD }}
+      image: ghcr.io/faasm/cpython:0.4.0
     services:
       redis:
         image: redis
     steps:
       - name: "Fetch code"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
       - name: "Build Python function"
