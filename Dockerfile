@@ -4,7 +4,16 @@ ARG FAASM_PYTHON_VERSION
 SHELL ["/bin/bash", "-c"]
 ENV PYTHON_DOCKER="on"
 
-RUN apt update && apt install -y libssl-dev
+RUN apt update \
+    && apt install -y --no-install-recommends \
+        dpkg-dev \
+        libssl-dev \
+        pkg-config \
+        wget \
+        zlib1g \
+        zlib1g-dev \
+  && apt autoremove -y \
+  && apt clean; rm -rf /var/lib/apt/lists/*
 
 # Clone code and submodules
 RUN mkdir -p /code \
@@ -30,21 +39,21 @@ RUN cd /code/python \
         cpython.func
 
 # Build cross-compiled python modules, including `pyfaasm`
-RUN cd /code/python \
-    && ./bin/crossenv_setup.sh \
-    && source ./cross_venv/bin/activate \
-    && pip3 install -r crossenv/requirements.txt \
-    && inv -r crossenv modules.build
+# RUN cd /code/python \
+    #     && ./bin/crossenv_setup.sh \
+    #     && source ./cross_venv/bin/activate \
+    #     && pip3 install -r crossenv/requirements.txt \
+    #     && inv -r crossenv modules.build
 
-# Finally, install the cross-compiled Python modules
-RUN cd /code/python \
-    && source ./venv/bin/activate \
-    && inv modules.install
+# # Finally, install the cross-compiled Python modules
+# RUN cd /code/python \
+    #     && source ./venv/bin/activate \
+    #     && inv modules.install
 
 # TODO: Install experimental pacakges
 # RUN . ./cross_venv/bin/activate && inv libs.install --experimental
 
 WORKDIR /code/python
-ENV TERM xterm-256color
+ENV TERM=xterm-256color
 RUN sed -i 's/\/code\/cpp\/bin/\/code\/python\/bin/g' ~/.bashrc
 CMD ["/bin/bash", "-l"]
