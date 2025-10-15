@@ -16,8 +16,6 @@ _host_interface = None
 
 
 def get_env_bool(var_name):
-    global env_cache
-
     if var_name not in env_cache:
         value = os.environ.get(var_name)
         env_cache[var_name] = bool(value)
@@ -26,7 +24,6 @@ def get_env_bool(var_name):
 
 
 def set_env_bool(var_name, value):
-    global env_cache
     env_cache[var_name] = value
 
 
@@ -76,7 +73,6 @@ def write_output(output):
 
 def get_output():
     if is_local_output():
-        global output_data
         return output_data
     else:
         raise RuntimeError(
